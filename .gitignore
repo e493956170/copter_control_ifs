@@ -9,3 +9,4 @@ src/get_gazebo_data
 src/keyboard_event
 src/minimumsnap_route
 src/.vscode
+.catkin_workspace
