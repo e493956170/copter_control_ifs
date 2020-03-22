@@ -63,7 +63,7 @@ RRT_Base::TreeNode_t RRT_Base::extend_a_step(TreeNode_t cloest_point,double step
 
 
 bool RRT_Base::single_point_check(WP newPoint ,OBSTACLE_GRID_MAP  &obstaclesMap){
-    if(obstaclesMap((int)newPoint.x,(int)newPoint.y)>0) {
+    if(obstaclesMap((int)newPoint.y,(int)newPoint.x)>0) {
         return false;
         }
     return true;
@@ -548,11 +548,13 @@ Direct_RRT::RRT_STATE_C Direct_RRT::plan(
         if(_p->show_path_map){
             for(int i=0;i<ret_wps.size()-1;i++){
                 lineimg(img,ret_wps[i],ret_wps[i+1],obstaclesMap);
+                route_vis->push_to_rviz(ret_wps);
+                rrt_vis->push_to_rviz(RRTtree_1);
+                rrt_vis2->push_to_rviz(RRTtree_2);
             }
-            route_vis->push_to_rviz(ret_wps);
-            rrt_vis->push_to_rviz(RRTtree_1);
-            rrt_vis2->push_to_rviz(RRTtree_2);
+
         }
+
 	}
 	else{
         rout("no found");
@@ -675,8 +677,8 @@ void Direct_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
             file_path<<"/"<<time.str();
             mkdir(file_path.str().c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
             file_path<<"/originMat.csv";
-            outputfile<<GridMap.Gridmap.center_x<<";"<<GridMap.Gridmap.center_y<<";"<<GridMap.Gridmap.grid_size<<";"<<std::endl;
             outputfile.open(file_path.str().c_str());
+            outputfile<<GridMap.Gridmap.center_x<<";"<<GridMap.Gridmap.center_y<<";"<<GridMap.Gridmap.grid_size<<";"<<std::endl;
             for(int j =0;j<GridMap.Gridmap.map.cols();j++){
                 for(int i=0;i<GridMap.Gridmap.map.rows();i++){
                     outputfile<<GridMap.Gridmap.map(i,j)<<";";
@@ -710,6 +712,7 @@ void Direct_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
             std::stringstream file_path;
             file_path<<"/home/az/rcc/"<<init_time.str()<<"/"<<time.str()<<"/obstacleMapMat.csv";
             outputfile.open(file_path.str().c_str());
+            outputfile<<GridMap.Gridmap.center_x<<";"<<GridMap.Gridmap.center_y<<";"<<GridMap.Gridmap.grid_size<<";"<<std::endl;
             for(int j =0;j<obstaclesMap.map.cols();j++){
                 for(int i=0;i<obstaclesMap.map.rows();i++){
                     outputfile<<obstaclesMap.map(i,j)<<";";
@@ -753,7 +756,7 @@ void Direct_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
         cv::Mat PathMat;
         std::vector<Tree_t> get_trees;
         cv::Mat element2 = cv::getStructuringElement(cv::MORPH_RECT, cv::Size((int)_p->dilate_first_x, (int)_p->dilate_first_y));
-        dilate(img, img, element2);	
+        dilate(img, img, element2);	 
         obstaclesMap.map.setZero();	
         cv::cv2eigen(img,obstaclesMap.map);
 
@@ -776,7 +779,7 @@ void Direct_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
                 if(++RRT_Faided_Cnt>5){
                     rout("Warning:RRT_Failed %d times",RRT_Faided_Cnt);
                     rout("Deduction: Map_Wrong.Operation:Clear Grid Map.");
-                    GridMap.tree->clear();
+                    // GridMap.tree->clear();
                     rout("Deduction: Map_Wrong.Operation: Grid Map Cleared.");
                     loop_rate->sleep();
                     loop_rate->sleep();

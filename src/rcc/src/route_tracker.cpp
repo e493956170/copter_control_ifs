@@ -84,8 +84,8 @@ void PID_2D_control::Create_Thread(positon_Local_NED_t &input_pos_flow){
     double last_x=0,last_y=0,last_yaw=0;
 
     rout("Mission \"Facing to Target\" : Doing.");
-    _mavlink->set_mode("OFFBOARD");
-    _mavlink->set_arm(true);
+    // _mavlink->set_mode("OFFBOARD");
+    // _mavlink->set_arm(true);
     // _mavlink->takeoff();
     while(ros::ok()){
         // rout("hello world RouteCOntrol");

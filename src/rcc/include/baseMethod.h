@@ -44,10 +44,7 @@ public :
     bool index_check(PointType p1,ObstacleGridMap_t obstaclesMap){
         if(p1.x<0||p1.y<0) 
             return false;
-        auto col_max =obstaclesMap.cols();
-        auto row_max =obstaclesMap.rows();
-        if(p1.y>=col_max||p1.x>=row_max)
-            return false;
+
         return true;
     }
     template <typename PointType,typename ObstacleGridMap_t>

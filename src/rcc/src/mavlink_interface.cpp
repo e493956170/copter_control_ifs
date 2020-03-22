@@ -157,13 +157,12 @@ void MAVLINK_INTERFACE::copter_info_handler(const nav_msgs::Odometry::ConstPtr &
 												,copter_local_pos_att.att_z
 												,copter_local_pos_att.att_w);
 
+
     tf::Matrix3x3(quat).getRPY(copter_local_pos_att.roll
 												,copter_local_pos_att.pitch
 												,copter_local_pos_att.yaw);
+	// rout("yaw :%f ",copter_local_pos_att.yaw);
 
-	copter_local_pos_att.ax=msg->twist.twist.linear.x;
-	copter_local_pos_att.ay=msg->twist.twist.linear.y;
-	copter_local_pos_att.az=msg->twist.twist.linear.z;
 }
 
 std::string MAVLINK_INTERFACE::get_mode(){

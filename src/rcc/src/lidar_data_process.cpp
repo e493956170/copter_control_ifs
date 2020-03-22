@@ -50,9 +50,15 @@ void LIDAR_DATA_PROCESS::lidarCloudHandler(const sensor_msgs::PointCloudConstPtr
     for (int i =0;i<cloud_TMP.size();i++){
         double dist =pow(cloud_TMP.points[i].x,2)+pow(cloud_TMP.points[i].y,2);
         if(dist<pow(40,2)&&dist>pow(0.3,2)){
+            // double t =cloud_TMP[i].y;
+            // cloud_TMP[i].y=cloud_TMP[i].x;
+            // cloud_TMP[i].x=-t;
             cloud.push_back(cloud_TMP.points[i]);//cloud_TMP2_FILTER
         }
         else{
+            // double t =cloud_TMP[i].y;
+            // cloud_TMP[i].y=cloud_TMP[i].x;
+            // cloud_TMP[i].x=-t;
             edgecloud.push_back(cloud_TMP.points[i]);
         }
     }
