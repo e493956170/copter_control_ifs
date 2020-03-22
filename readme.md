@@ -14,7 +14,7 @@ Flight tasks manager is develop to virtual funtion ,so it is easy to extend othe
 RouteTracker is based on pure pursuit.
 
 # Visualization
-Visualization in rviz has been wrapped into some simple by template class.So it will be more convenient to show your work.
-More visualiztion wrapper of rviz  is under working . Also ,the purpose of this is to simplify work not to heavy study pressure.
+Visualization in rviz has been wrapped into some simple steps by template class.So it will be more convenient to show your hard work.
+More visualiztion wrapper of rviz  is under working . Also ,the purpose of this is to simplify work not to heavy study content.
 
 
