@@ -1,7 +1,0 @@
-<launch>
-
-<node pkg="test" type="test_node" name="test_node" output="screen" />
-
-<node pkg="my_pkg" type="my_pkg_node" name="my_pkg_node" output="screen" />
-
-</launch>
