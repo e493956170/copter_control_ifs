@@ -24,13 +24,13 @@ public :
     int center_x;
     int center_y;
     double grid_size=0.2;
-    void set_grid(int x ,int y,int value);//col first
-    double operator() (const int &x,const int &y){
-        if(x<0||y<0||x>map.cols()||y>map.rows()) return 0 ;
-        return map(y,x);
+    void set_grid(int x ,int y,double value);//col first
+    double operator() (const int &row,const int &col){
+        if(col<0||row<0||col>=map.cols()||row>=map.rows()) return 0 ;
+        return map(row,col);
     }
-    void resize(int x ,int y){
-        map.resize(y,x);
+    void resize(int row ,int col){
+        map.resize(row,col);
     }
     void setZero(){
         map.setZero();
@@ -77,9 +77,6 @@ public:
     void update_grid(int x ,int y ,GRID_STATUS hit_or_miss);
     bool check_grid(int x,int y );
     double check_grid(int x,int y ,int z);
-
-    void set_grid(int x,int y ,int value);
-    void set_grid(OBSTACLE_GRID_MAP *map, int x,int y,int value);
 
     bool isSpeckleNode(octomap::OcTree::iterator Node);
     void update_grid(WP _wp_ ,GRID_STATUS hit_or_miss);

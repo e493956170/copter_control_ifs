@@ -31,8 +31,7 @@ PROBABILISTIC_MAP::PROBABILISTIC_MAP(std::mutex *_mtx_,Parameters *_p_,UNIVERSAL
     Gridmap.map.resize(y/Gridmap.grid_size,x/Gridmap.grid_size);
     Gridmap.map.setZero();
     occupied_thresh=_p->map_occupied_thresh;
-    ShadowMap.resize(y/Gridmap.grid_size,x/Gridmap.grid_size);
-    ShadowMap.setZero();
+
     set_center(y/Gridmap.grid_size/2,x/Gridmap.grid_size/2);
     update_hit=log(occupied_p_of_hit/(1-occupied_p_of_hit));
     update_miss=log(occupied_p_of_miss/(1-occupied_p_of_miss));
@@ -46,24 +45,10 @@ PROBABILISTIC_MAP::PROBABILISTIC_MAP(std::mutex *_mtx_,Parameters *_p_,UNIVERSAL
     tree->setClampingThresMax(0.999);
 }
 
-void PROBABILISTIC_MAP::update_grid(int x ,int y ,GRID_STATUS hit_or_miss){
-    if(hit_or_miss==GRID_STATUS::HIT)
-        Gridmap.map(x,y)+=+update_hit; 
-    if(hit_or_miss==GRID_STATUS::MISS)
-        Gridmap.map(x,y)+=+update_miss;
-    Gridmap.map(x,y)=Gridmap.map(x,y)>150?150:Gridmap.map(x,y);
-    Gridmap.map(x,y)=Gridmap.map(x,y)<-150?-150:Gridmap.map(x,y);
-}
-bool PROBABILISTIC_MAP::check_grid(int x,int y ){
+double PROBABILISTIC_MAP::check_grid(int row,int col ,int z){
     
-    double p = 1-1/(1+exp(Gridmap.map(x,y)));
-    
-    return p>occupied_thresh?true:false;
-}
-double PROBABILISTIC_MAP::check_grid(int x,int y ,int z){
-    
-    double p = 1-1/(1+exp(Gridmap.map(x,y)));
-    
+    double p = Gridmap(row,col);  //row index   col index
+    if(p>0) rout("%f",p);
     return p;
 }
 void PROBABILISTIC_MAP::update_grid(WP _wp_ ,GRID_STATUS hit_or_miss){
@@ -127,8 +112,7 @@ void PROBABILISTIC_MAP::update_from_cloud(const PTC &cloud,const PTC &edge,copte
 
     OBSTACLE_GRID_MAP tmpMap(Gridmap);
     tmpMap.map.resize(Gridmap.map.rows(),Gridmap.map.cols());
-    tmpMap.map.setOnes();
-    tmpMap.map=-150*tmpMap.map;
+    tmpMap.map.setZero();
     double min =attpos->pos_z-0.5; min=min<0?0:min;
     double max = attpos->pos_z+0.5;
     for(octomap::OcTree::iterator it = tree->begin(16),
@@ -136,15 +120,16 @@ void PROBABILISTIC_MAP::update_from_cloud(const PTC &cloud,const PTC &edge,copte
         if(tree->isNodeOccupied(*it)){
             double z = it.getZ();
             double half_size = it.getSize()/2;
-            if (z + half_size > min && z - half_size < max ){
+            if (z + half_size > min && z - half_size < max ){  //slice
                 double x = it.getX();
                 double y = it.getY();
                 double size = it.getSize();
                  if ((it.getDepth() ==16) && !isSpeckleNode(it)){
                     continue;
-                }   
-                tmpMap.set_grid(x/tmpMap.grid_size+tmpMap.center_x,y/tmpMap.grid_size+tmpMap.center_y,150);
-                // rout("%f %f %d %d",x/tmpMap.grid_size+tmpMap.center_x,y/tmpMap.grid_size+tmpMap.center_y,tmpMap.map.rows(),tmpMap.map.cols());
+                }
+                // rout("it->getOccupancy() %f",it->getOccupancy());
+                tmpMap.set_grid(x/tmpMap.grid_size+tmpMap.center_x,y/tmpMap.grid_size+tmpMap.center_y,it->getOccupancy());
+                // rout("tmpMap%f  get%f",tmpMap(y/tmpMap.grid_size+tmpMap.center_y,x/tmpMap.grid_size+tmpMap.center_x),it->getOccupancy());
             }
         }
     }
@@ -176,15 +161,6 @@ bool PROBABILISTIC_MAP::isSpeckleNode(octomap::OcTree::iterator Node){
     return false;
 }
 
-void PROBABILISTIC_MAP::set_grid(int x,int y,int value){
-    if(x<0||y<0||x>=Gridmap.map.cols()||y>=Gridmap.map.rows()) return;
-    Gridmap.map(y,x)=value;    
-}
-void PROBABILISTIC_MAP::set_grid(OBSTACLE_GRID_MAP *map, int x,int y,int value){
-   
-    if(x<0||y<0||x>=map->map.cols()||y>=map->map.rows()) return;
-    map->map(y,x)=value;
-}
 
 cv::Mat PROBABILISTIC_MAP::get_whole_map(){
     cv::Mat img(Gridmap.map.rows(),Gridmap.map.cols(),CV_8UC1);
@@ -192,9 +168,9 @@ cv::Mat PROBABILISTIC_MAP::get_whole_map(){
     for(int i = 0;i<Gridmap.map.rows();i++)
         for(int j = 0;j<Gridmap.map.cols();j++){
                 img.at<uchar>(i,j)=check_grid(i,j,0)*255;
+                if(check_grid(i,j,0)>0)
+                rout("%f %d",check_grid(i,j,0)*255,img.at<uchar>(i,j));
     }
-
-
     return img;
 }
 void PROBABILISTIC_MAP::set_center(int x,int y ){
@@ -264,8 +240,8 @@ void OBSTACLE_GRID_MAP::index_check(int &x,int &y){
         rout("x>= ,map resize %d %d to %d %d",cur_rows,cur_cols,map.rows(),map.cols());
     }          
 }
-void OBSTACLE_GRID_MAP::set_grid(int x ,int y,int value){  //col first
+void OBSTACLE_GRID_MAP::set_grid(int x ,int y,double value){  //col first
         index_check(x,y);
-        // if(x<0||y<0||x>=map.cols()||y>=map.rows()) return;
         map(y,x)=value;
+        // rout("map(y,x)%f %f",map(y,x),value);
 }

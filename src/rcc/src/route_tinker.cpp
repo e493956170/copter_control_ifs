@@ -654,7 +654,6 @@ void Direct_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
     while(1){
         // rout("hellow world rRT.");
         // rout("%d",_unity->first_boot);
-        if(!_unity->flight_task_started)continue;
         if(_unity->new_map_avaliable ==false) {  //如果计算失败 那就停下来  继续计算
             if(RRT_Calc_State==RRT_STATE_C::TRY_AGAIN){ 
                 loop_rate->sleep();
@@ -676,6 +675,7 @@ void Direct_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
             file_path<<"/"<<time.str();
             mkdir(file_path.str().c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
             file_path<<"/originMat.csv";
+            outputfile<<GridMap.Gridmap.center_x<<";"<<GridMap.Gridmap.center_y<<";"<<GridMap.Gridmap.grid_size<<";"<<std::endl;
             outputfile.open(file_path.str().c_str());
             for(int j =0;j<GridMap.Gridmap.map.cols();j++){
                 for(int i=0;i<GridMap.Gridmap.map.rows();i++){
@@ -689,7 +689,7 @@ void Direct_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
         _unity->new_map_avaliable=false;
 
         auto img = GridMap.get_whole_map();           auto tar1 = GridMap.get_whole_map();
-
+        
         cv::threshold(img,img,_p->map_occupied_thresh*255,255,CV_THRESH_BINARY);
         cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(_p->dilate_second_x,_p->dilate_second_y));
         dilate(img, tar1, element);
@@ -697,6 +697,9 @@ void Direct_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
         if(_p->show_rt_map){
             cv::imshow("Origin_map",tar1);
         }
+        // rout("hellow ");
+        if(!_unity->flight_task_started) continue;
+
         obstaclesMap=GridMap.Gridmap;
 
         cv::cv2eigen(tar1,obstaclesMap.map);
@@ -746,6 +749,7 @@ void Direct_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
                 if(!current_route_ocllision) continue;
             }	
         }
+
         cv::Mat PathMat;
         std::vector<Tree_t> get_trees;
         cv::Mat element2 = cv::getStructuringElement(cv::MORPH_RECT, cv::Size((int)_p->dilate_first_x, (int)_p->dilate_first_y));
