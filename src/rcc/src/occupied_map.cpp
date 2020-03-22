@@ -102,69 +102,6 @@ void PROBABILISTIC_MAP::update_from_cloud(const PTC &cloud,const PTC &edge,copte
         imshow("edgecloud",img);
 
     }
-    // tree->computeRay();
-
-// //转化为栅格坐标,然后将gps坐标也转化为栅格坐标，使用bresenham算法进行求解经过的路径点 最后遍历求解。
-// // #pragma omp parallel for num_threads(4)
-
-//     for(int i=0;i<EdgeCloudInworld.size();i++){
-//         // tree->computeRay();
-
-//         if(_p->show_point_cloud)
-//         {
-//             circleimg(img,EdgeCloudInworld[i],obstaclesMapshow,Scalar(255,20,0),2);
-//         }
-//         EdgeCloudInworld[i].x/=Gridmap.grid_size;EdgeCloudInworld[i].x=(int)(EdgeCloudInworld[i].x);
-//         EdgeCloudInworld[i].y/=Gridmap.grid_size;EdgeCloudInworld[i].y=(int)(EdgeCloudInworld[i].y);
-//         WPS throughGrid = bresenham(WP((int)(attpos->pos_x/Gridmap.grid_size),(int)(attpos->pos_y/Gridmap.grid_size),0),EdgeCloudInworld[i]);
-//         for(int j=0;j<throughGrid.size();j++){
-//             int x = throughGrid[j].x+Gridmap.center_x;
-//             int y = throughGrid[j].y+Gridmap.center_y;
-//             if (x>=Gridmap.map.cols()||x<0) continue;
-//             if (y>=Gridmap.map.rows()||y<0) continue;
-//             ShadowMap(y,x)=-1;
-//         }
-//     }
-//     for(int i = 0;i<pointCloudInworld.size();i++){
-//         if(_p->show_point_cloud)
-//         {
-//             circleimg(img,pointCloudInworld[i],obstaclesMapshow,Scalar(0,255,0),2);
-//         }
-//         pointCloudInworld[i].x/=Gridmap.grid_size;pointCloudInworld[i].x=(int)(pointCloudInworld[i].x);
-//         pointCloudInworld[i].y/=Gridmap.grid_size;pointCloudInworld[i].y=(int)(pointCloudInworld[i].y);
-//         WPS throughGrid = bresenham(WP((int)(attpos->pos_x/Gridmap.grid_size),(int)(attpos->pos_y/Gridmap.grid_size),0),pointCloudInworld[i]);
-    
-//         for(int j=0;j<throughGrid.size()-1;j++){
-//             int x = throughGrid[j].x+Gridmap.center_x;
-//             int y = throughGrid[j].y+Gridmap.center_y;
-//             if (x>=Gridmap.map.cols()||x<0) continue;
-//             if (y>=Gridmap.map.rows()||y<0) continue;
-//             if(ShadowMap(y,x)!=0) continue;
-//             ShadowMap(y,x)=-1;
-//         }
-//         {
-//             int j=throughGrid.size()-1;
-//             if(j>5) {
-//             int x = throughGrid[j].x+Gridmap.center_x;
-//             int y = throughGrid[j].y+Gridmap.center_y;
-//             if (x>=Gridmap.map.cols()||x<0||y>=Gridmap.map.rows()||y<0) continue;
-//             ShadowMap(y,x)=1;
-//             }
-//         }
-//     }
-
-//     for(int i = 0;i<ShadowMap.rows();i++){
-//         for(int j=0;j<ShadowMap.cols();j++){
-//             switch(ShadowMap(i,j)){
-//                 case 1:
-//                     update_grid(i,j,GRID_STATUS::HIT);
-//                 break;
-//                 case -1:
-//                     update_grid(i,j,GRID_STATUS::MISS);
-//                 break;
-//             }
-//         }
-//     }
 
     octomap::KeyRay ray;
     octomap::Pointcloud cloud_ed;

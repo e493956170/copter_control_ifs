@@ -671,7 +671,7 @@ void Direct_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
         {
             std::ofstream outputfile;
             std::stringstream file_path;
-            file_path<<"/home/az/rcc/"<<init_time.str();//<<"/originMat.csv"
+            file_path<<"/home/az/rcc/"<<init_time.str();
             mkdir(file_path.str().c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
             file_path<<"/"<<time.str();
             mkdir(file_path.str().c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
