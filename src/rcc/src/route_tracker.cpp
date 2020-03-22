@@ -31,11 +31,9 @@ bool PID_2D_control::get_2d_control_speed(positon_Local_NED_t &input_pos_flow,ve
     double &target_x=input_pos_flow.x;
     double &target_y=input_pos_flow.y;
     // double target_yaw=rect_coord_to_angle(target_x-latest_x,target_y-latest_y);
-    double target_yaw = include_angle_calc(target_yaw,_mavlink->get_pose().yaw);
     
     // rout("target_x %f,target_y:%f,last_x:%f,last_y:%f,target_yaw%f，latest_yaw:%f",target_x,target_y,latest_x,latest_y,target_yaw,latest_yaw);
-
-
+    target_yaw = input_pos_flow.yaw;
     double &target_vx=output_flow.vx;
     double &target_vy=output_flow.vy;
     double &target_yaw_rate=output_flow.yaw_rate;
