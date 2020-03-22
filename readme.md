@@ -1,5 +1,5 @@
 # copter_control_ifs
-copter control with dji or px4/ardupilot
+copter control interface with dji or mavlink devicce like px4/ardupilot
 
 # Introduction
 A C++ based copter control interface to simplify the repeated work in copter control . People should be easily use this to devolop slam,trajectory planning ,or other state-of-art things.
@@ -16,3 +16,5 @@ RouteTracker is based on pure pursuit.
 # Visualization
 Visualization in rviz has been wrapped into some simple by template class.So it will be more convenient to show your work.
 More visualiztion wrapper of rviz  is under working . Also ,the purpose of this is to simplify work not to heavy study pressure.
+
+
