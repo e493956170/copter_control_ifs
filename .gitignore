@@ -1,0 +1,8 @@
+build/*
+devel/*
+src/airsim_cloud_node
+src/get_gazebo_data
+src/keyboard_event
+src/minimumsnap_route
+src/QT
+src/.vscode

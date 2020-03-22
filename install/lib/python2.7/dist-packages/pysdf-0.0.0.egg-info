@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: pysdf
+Version: 0.0.0
+Summary: Python library to parse SDF into class hierarchy and export URDF
+Home-page: http://wiki.ros.org/pysdf
+Author: Andreas Bihlmaier
+Author-email: andreas.bihlmaier@gmx.de
+License: MIT
+Description: UNKNOWN
+Platform: UNKNOWN
