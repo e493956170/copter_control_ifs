@@ -102,14 +102,17 @@ def ClickToLoadFile(ui):
         ui.label_2.setText("状态：文件路径不存在")
 
 def ClickToStartSim(ui):
-    os.system('gnome-terminal -t "roscore" -x bash -c "roscore;exec bash;"')
-    os.system('gnome-terminal -t "Gazebo" -x bash -c "rosrun gazebo_ros gazebo --verbose  my_world_lidar_test_scenario_CC.world;exec bash;"')
-    os.system('gnome-terminal -t "Minimumsnap" -x bash -c "rosrun minimumsnap_route planner_srv.py;exec bash;"')
-    os.system('gnome-terminal -t "SITL" -x bash -c "/home/az/ardupilot_master/ardupilot/Tools/autotest/sim_vehicle.py -v ArduCopter -f gazebo-iris --map --console;exec bash;"')
-    os.system('sleep 5s')
-    os.system('gnome-terminal -t "MAVROS" -x bash -c "roslaunch mavros apm2.launch;exec bash;"')
+    os.system('gnome-terminal -t "roscore" -x bash -c "rosrun rcc rcc"')
     ui.label_2.setText("状态：仿真程序已启动")
     ui.pushButton.setDisabled(True)
+    ui.pushButton_2.setDisabled(False)
+def ClickToStopSim(ui):
+    def end_program(pro_name):
+        os.system('%s%s' % ("killall ",pro_name))
+    end_program('rcc')
+    ui.pushButton_2.setDisabled(True)
+    ui.pushButton.setDisabled(False)
+
 def ClickToAddValue(ui):
     title=ui.lineEdit_2.text().replace(" ","")
     parameter=ui.lineEdit_3.text().replace(" ","")
@@ -120,6 +123,7 @@ def ClickToAddValue(ui):
         return 
     addTreeitemContent(ui,title,parameter,value,note)
     ui.label_2.setText("状态：数据已添加成功 {}->{}={}#{}".format(title,parameter,value,note))
+
 
 if __name__ == '__main__':
     _translate = QtCore.QCoreApplication.translate
@@ -136,5 +140,6 @@ if __name__ == '__main__':
     ui.pushButton_4.clicked.connect(lambda:ClickToLoadFile(ui))
     ui.pushButton_5.clicked.connect(lambda:ClickToSaveFile(ui))
     ui.pushButton.clicked.connect(lambda:ClickToStartSim(ui))
+    ui.pushButton_2.clicked.connect(lambda :ClickToStopSim(ui))
     ui.pushButton_3.clicked.connect(lambda :ClickToAddValue(ui))
     sys.exit(app.exec_())

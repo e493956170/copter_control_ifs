@@ -543,6 +543,13 @@ Direct_RRT::RRT_STATE_C Direct_RRT::plan(
             }
             double end_time = ros::Time::now().toSec();
             rout("MinimumSnap start time %f,end time:%f.",start_time,end_time);
+        }else{
+            ret_wps.clear();
+            ret_wps.push_back(start);
+            for (int i = 0 ; i <40;i++){
+                ret_wps.push_back(WP(start.x+i*(target.x-start.x)/40.,start.y+i*(target.y-start.y)/40.,start.z+i*(target.z-start.z)/40.));
+            }
+            ret_wps.push_back(target);
         }
         current_route.wps=ret_wps;
         if(_p->show_path_map){
@@ -552,9 +559,7 @@ Direct_RRT::RRT_STATE_C Direct_RRT::plan(
                 rrt_vis->push_to_rviz(RRTtree_1);
                 rrt_vis2->push_to_rviz(RRTtree_2);
             }
-
         }
-
 	}
 	else{
         rout("no found");

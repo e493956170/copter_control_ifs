@@ -33,6 +33,9 @@ public:
     WP &operator[](const  int &__idx){
         return way_points[__idx];
     }
+	void clear(){
+		way_points.clear();
+	}
 	std::vector<__WAYPOINT_T__>::iterator end()  {return way_points.end();} 
 	std::vector<__WAYPOINT_T__>::iterator begin(){return way_points.begin();}
 }WPS;
