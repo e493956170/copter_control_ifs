@@ -43,3 +43,15 @@ void __VISUALIZE_MARKER__::set_attribue(double r,double g,double b,double a,doub
     marker.color.g=g;
     marker.color.b=b;
 }
+std::shared_ptr<__VISUALIZE_MARKER__> __VISUALIZE_MARKER__::init(std::string name,std::string type,std::string marker_type,std::string refresh_method){
+    return std::make_shared<__VISUALIZE_MARKER__>(__VISUALIZE_MARKER__(name,type,marker_type,refresh_method));
+}
+
+void __VISUALIZE_MARKER__::set_quat(double x,double y,double z,double w){
+
+    marker.pose.orientation.x=x;
+    marker.pose.orientation.y=y;
+    marker.pose.orientation.z=z;
+    marker.pose.orientation.w=w;
+
+}

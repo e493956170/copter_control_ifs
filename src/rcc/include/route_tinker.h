@@ -204,6 +204,8 @@ class Direct_RRT:public RRT_Base{
     std::shared_ptr<visualizer_marker> rrt_vis;
     std::shared_ptr<visualizer_marker> rrt_vis2;
     std::shared_ptr<visualizer_marker> land_mark_vis;
+    std::shared_ptr<visualizer_marker> check_radius_vis;
+
 
 
 public :

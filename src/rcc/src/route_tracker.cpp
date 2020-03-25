@@ -76,15 +76,13 @@ void PID_2D_control::Create_Thread(positon_Local_NED_t &input_pos_flow){
     std::stringstream ss;ss<<"Path_PID_CONTROL_THREAD Started.Thread ID:"<<std::this_thread::get_id();rout("%s",ss.str().c_str());
     
     input_pos_flow.yaw  = _mavlink->get_pose().yaw;
-    input_pos_flow.x=_p->target_pos_x;
-    input_pos_flow.y=_p->target_pos_y;
-    input_pos_flow.z=_p->target_pos_z;
+    input_pos_flow.x=_mavlink->get_pose().pos_x;
+    input_pos_flow.y=_mavlink->get_pose().pos_y;
+    input_pos_flow.z=_mavlink->get_pose().pos_z;
     double last_x=0,last_y=0,last_yaw=0;
 
     rout("Mission \"Facing to Target\" : Doing.");
-    // _mavlink->set_mode("OFFBOARD");
-    // _mavlink->set_arm(true);
-    // _mavlink->takeoff();
+
     while(ros::ok()){
         // rout("hello world RouteCOntrol");
         loop_rate->sleep();

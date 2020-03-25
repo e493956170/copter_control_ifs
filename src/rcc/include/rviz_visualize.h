@@ -6,10 +6,12 @@ class __VISUALIZE_MARKER__{
     std::shared_ptr<ros::Publisher> pub;
     visualization_msgs::Marker marker;
     std::string refresh_mode;
-public:
     __VISUALIZE_MARKER__(std::string name,std::string type,std::string marker_type,std::string refresh_method);
+public:
+    std::shared_ptr<__VISUALIZE_MARKER__> init(std::string name,std::string type,std::string marker_type,std::string refresh_method);
     void set_attribue(double r,double g,double b);
     void set_attribue(double r,double g,double b,double a,double scale_x,double scale_y,double scale_z);
+    void set_quat(double x,double y,double z,double w);
     template<typename T>
     void push_to_rviz(T PointList){
         if(refresh_mode=="refresh"){

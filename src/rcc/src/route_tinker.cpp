@@ -633,15 +633,16 @@ Direct_RRT::Direct_RRT(std::random_device *_rd_,std::mutex *_mtx_,Parameters *_p
 	minimumsnap_srv->request.flyspeed=1.;
 	minimumsnap_srv->request.mode="normal";
 
-    route_vis = std::make_shared<visualizer_marker>(visualizer_marker("minimumsnap","marker","line_strip","refresh"));
+    route_vis = route_vis->init("minimumsnap","marker","line_strip","refresh");
     route_vis->set_attribue(0.5,0,0.8);
-    rrt_vis = std::make_shared<visualizer_marker>(visualizer_marker("rrt","marker","point","refresh"));
-    rrt_vis2 = std::make_shared<visualizer_marker>(visualizer_marker("rrt2","marker","point","refresh"));
+    rrt_vis = rrt_vis->init("rrt","marker","point","refresh");
+    rrt_vis2 = rrt_vis2->init("rrt2","marker","point","refresh");
     rrt_vis->set_attribue(0.8,1,1);
     rrt_vis2->set_attribue(0.2,1,1);
-    land_mark_vis = std::make_shared<visualizer_marker>(visualizer_marker("land_mark","marker","cube","add"));
-    land_mark_vis->set_attribue(1,1,1,0.5,0.2,0.2,5);
-
+    land_mark_vis = land_mark_vis->init("land_mark","marker","cylinder","add");
+    land_mark_vis->set_attribue(1,1,1,1,0.2,0.2,5);
+    check_radius_vis = check_radius_vis->init("check_radius_vis","marker","cylinder","refresh");
+    check_radius_vis->set_attribue(0.5,0.5,0.5,0.2,8,8,3);
 }
 
 
@@ -699,7 +700,7 @@ void Direct_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
         
         cv::threshold(img,img,_p->map_occupied_thresh*255,255,CV_THRESH_BINARY);
         cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(_p->dilate_second_x,_p->dilate_second_y));
-        dilate(img, tar1, element);
+        cv::dilate(img, tar1, element);
 
         if(_p->show_rt_map){
             cv::imshow("Origin_map",tar1);
@@ -730,7 +731,7 @@ void Direct_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
         bool current_route_ocllision = false;
         int ocllision_index =-1;
         copter_local_pos_att_t att_pos_copy = _mavlink->get_pose();
-
+        check_radius_vis->push_to_rviz(WPS(WP(att_pos_copy.pos_x,att_pos_copy.pos_y,att_pos_copy.pos_z)));
         if(RRT_Calc_State != RRT_Base::RRT_STATE_C::TRY_AGAIN)
         {
             // rout("current_route.size()%d",current_route.size());

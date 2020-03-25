@@ -102,7 +102,8 @@ def ClickToLoadFile(ui):
         ui.label_2.setText("状态：文件路径不存在")
 
 def ClickToStartSim(ui):
-    os.system('gnome-terminal -t "roscore" -x bash -c "rosrun rcc rcc"')
+    cmd = 'gnome-terminal -t "roscore" -x bash -c "rosrun rcc rcc -c {}"'.format(ui.lineEdit.text())
+    os.system(cmd)
     ui.label_2.setText("状态：仿真程序已启动")
     ui.pushButton.setDisabled(True)
     ui.pushButton_2.setDisabled(False)
