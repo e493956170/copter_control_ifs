@@ -1,4 +1,4 @@
-#include "cfg.h"
+#include "base/cfg.h"
 #include <fstream>
 
 //构造函数

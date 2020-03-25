@@ -1,18 +1,18 @@
-#include <route_tinker.h>
+#include <route_tinker/route_tinker.h>
 #include <ros/ros.h>
 #include <nav_msgs/Path.h>
 #include <std_msgs/String.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <time.h>
-#include "route_tracker.h"
+#include "route_tracker/route_tracker.h"
 #include "pcl/filters/voxel_grid.h"
 #include "Eigen/Dense"
 #include "Eigen/Eigen"
 #include "sensor_msgs/point_cloud_conversion.h"
 #include <pcl/common/common.h>
-#include<opencv2/opencv.hpp>
-#include<opencv2/core/eigen.hpp>
-
+#include <opencv2/opencv.hpp>
+#include <opencv2/core/eigen.hpp>
+#include <iostream>
 #include <chrono>
 using namespace cv;
 
@@ -226,7 +226,7 @@ void RRT_Base::simplify_rrt_trees(WPS &path,OBSTACLE_GRID_MAP &obstaclesMap){
     }
     path=tmp_path;
 }
-bool Direct_RRT::Check_If_Target_OK(OBSTACLE_GRID_MAP &obstaclesMap,FLY_PLAN_T &current_route){
+bool CONNECT_RRT::Check_If_Target_OK(OBSTACLE_GRID_MAP &obstaclesMap,FLY_PLAN_T &current_route){
 
 	WP WayPoint(_p->target_pos_x/obstaclesMap.grid_size+obstaclesMap.center_x,_p->target_pos_y/obstaclesMap.grid_size+obstaclesMap.center_y,0);
 	double  length = 0.4;
@@ -256,7 +256,7 @@ bool Direct_RRT::Check_If_Target_OK(OBSTACLE_GRID_MAP &obstaclesMap,FLY_PLAN_T &
 
 
 
-Direct_RRT::RRT_STATE_C Direct_RRT::minimumsnap_calc(
+CONNECT_RRT::RRT_STATE_C CONNECT_RRT::minimumsnap_calc(
   
                              copter_local_pos_att_t attpos
                             ,WPS &path_input
@@ -330,7 +330,90 @@ Direct_RRT::RRT_STATE_C Direct_RRT::minimumsnap_calc(
         return RRT_STATE_C::MINIMUMSNAP_SRV_TIME_OUT_FAILED;
     }
 }
-Direct_RRT::RRT_STATE_C Direct_RRT::plan(
+class LOG{
+    void to_log(){
+        std::ofstream outputfile;
+        outputfile.open(file_path.str().c_str(),ios::app);
+        outputfile<<data.str();
+        outputfile.close();
+    }
+
+    std::stringstream data;
+    std::stringstream file_path;
+    virtual void title()=0;
+    public:
+    LOG(std::string file = "calc_time_log"){
+        static int cnt =0 ;
+        static std::stringstream init_time;
+        std::time_t today_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        init_time<< std::ctime(&today_time);
+        file_path<<"/home/az/rcc/"<<"calc_time_log";
+        mkdir(file_path.str().c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        fstream _file;
+        file_path<<"/calc_time_log.csv";        
+    }
+    template<typename T>
+    LOG &operator<< (T value){
+        data<<value<<";";
+        return *this;
+    }
+    void end(){
+        data<<"\r\n";
+        to_log();
+    }
+};
+class CALC_TIME_LOG:public LOG{
+    void title(){
+        (*this)<<"起始位置x"<<"起始位置y"<<"结束位置x"<<"结束位置y";
+        (*this)<<"RRT 开始时间"<<"RRT 结束时间"<<"总迭代次数";
+        (*this)<<"是否找到RRT路径";
+        (*this)<<"树1大小"<<"树2大小"<<"简化后尺寸";
+        (*this)<<"MS开始时间"<<"MS结束时间"<<"\r\n";
+    }
+public:
+    CALC_TIME_LOG()
+    {
+        title();
+    }
+
+};
+
+WPS CONNECT_RRT::get_RRT_Path(Tree_t RRTtree){
+    WPS path;
+    int last_idx = RRTtree.path_end_idx;
+    while(last_idx>-1){
+    path.push_back(RRTtree[last_idx]);
+    last_idx=RRTtree(last_idx,"father_idx");
+    }
+    return path;
+}
+WPS CONNECT_RRT::combine_two_rrt_path(Tree_t RRTtree1,Tree_t RRTtree2){
+    WPS path;
+    WPS path1=get_RRT_Path(RRTtree1);
+    WPS path2=get_RRT_Path(RRTtree2);
+    if(RRTtree1(0,"father_idx")==-1&&RRTtree2(0,"father_idx")==-2){
+        for(int i = path2.size()-1;i>=0;i--){
+            path.push_back(path2[i]);
+            // rout("dd");
+        } 
+
+        for(int i = 0;i<path1.size();i++){
+            path.push_back(path1[i]);
+        }
+    }
+    else{
+        for(int i = path1.size()-1;i>=0;i--){
+            path.push_back(path1[i]);
+        }
+        for(int i = 0;i<path2.size();i++){
+            path.push_back(path2[i]);
+        }
+    }
+    std::reverse(path.begin(),path.end());
+    return path;
+}
+
+CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan(
                                  copter_local_pos_att_t att_pos_copy      
                                 ,OBSTACLE_GRID_MAP &obstaclesMap
                                 ,FLY_PLAN_T &current_route
@@ -339,6 +422,7 @@ Direct_RRT::RRT_STATE_C Direct_RRT::plan(
                                 ){
     auto attpos = att_pos_copy;
     cv::Mat tmp(obstaclesMap.map.rows(),obstaclesMap.map.cols(),CV_8UC1);
+    CALC_TIME_LOG log;
     if(_p->show_path_map){
         cv::eigen2cv(obstaclesMap.map,tmp);
         tmp.convertTo(tmp,CV_8UC3);
@@ -356,6 +440,8 @@ Direct_RRT::RRT_STATE_C Direct_RRT::plan(
         circleimg(img,WP(attpos.pos_x,attpos.pos_y,0),obstaclesMap,Scalar(0,255,255));
         circleimg(img,target,obstaclesMap,Scalar(0,0,255));
     }
+    
+    log<<start.x<<start.y<<target.x<<target.y;
 
 	rout("\r\n RRT Mission Started.\r\nstart x:%f,y:%f, end x:%f,y:%f.",start.x,start.y,target.x,target.y);
 	Tree_t RRTtree_1(start),RRTtree_2(target);
@@ -369,16 +455,15 @@ Direct_RRT::RRT_STATE_C Direct_RRT::plan(
         cv::flip(img,tmp,0);
         cv::imshow("Path_map",tmp);
     }
-
-    // double start_time = ros::Time::now().toSec();    
+ 
     uint64_t iter_cnt=0;
     std::stringstream start_time ;
-    start_time << ros::Time::now().toSec();
-    auto start_time_mark= ros::Time::now();
-
+    ros::Time start_time_mark = ros::Time::now();
+    start_time << start_time_mark.toSec();
 	while(iter<_p->rrt_one_step_max_iterations)
 	{
         if(ros::Time::now()-start_time_mark>ros::Duration(1.2)){
+            log.end();
             return RRT_STATE_C::RRT_FAILED;
             break;
         }
@@ -475,6 +560,10 @@ Direct_RRT::RRT_STATE_C Direct_RRT::plan(
 
     rout("RRT start time %s,end time:%s.Iteration :%d",start_time.str().c_str(),end_time.str().c_str(),iter_cnt);
 
+    log<<start_time.str()<<end_time.str()<<iter_cnt;
+
+    log<<find_path;
+
     get_trees.push_back(RRTtree_1);
     get_trees.push_back(RRTtree_2);
 
@@ -482,49 +571,23 @@ Direct_RRT::RRT_STATE_C Direct_RRT::plan(
 
         std::stringstream ss;
 
-        ss<<"finished size"<<RRTtree_1.size()<<"\r\n";
-        WPS path1;
-        int last_idx = RRTtree_1.path_end_idx;
-        while(last_idx>-1){
-            path1.push_back(RRTtree_1[last_idx]);
-            last_idx=RRTtree_1(last_idx,"father_idx");
-        }
-        WPS path2;
-        last_idx = RRTtree_2.path_end_idx;
-        while(last_idx>-1){
-            path2.push_back(RRTtree_2[last_idx]);
-            last_idx=RRTtree_2(last_idx,"father_idx");
-        }
-        WPS path;
-        if(RRTtree_1(0,"father_idx")==-1&&RRTtree_2(0,"father_idx")==-2){
-            for(int i = path2.size()-1;i>=0;i--){
-                path.push_back(path2[i]);
-                // rout("dd");
-            } 
- 
-            for(int i = 0;i<path1.size();i++){
-                path.push_back(path1[i]);
-            }
-        }
-        else{
-            for(int i = path1.size()-1;i>=0;i--){
-                path.push_back(path1[i]);
-            }
-            for(int i = 0;i<path2.size();i++){
-                path.push_back(path2[i]);
-            }
-        }
-        std::reverse(path.begin(),path.end());
+        ss<<"finished size"<<RRTtree_1.size()+RRTtree_2.size()<<"\r\n";
+        log<<RRTtree_1.size()<<RRTtree_2.size();
 
-        ss<<"   RRT Info\nstart x:"<<path[0].x<<",y:"<<path[0].y<<";\r\nend x:"<<(path.end()-1)->x<<",y:"<<(path.end()-1)->y<<"\r\n";
+        WPS path=combine_two_rrt_path(RRTtree_1,RRTtree_2);
 
 		auto simplified_path = path;
-        ss<<"total finished size"<<path.size()<<"\r\n";
+        {
+            ss<<"total finished size"<<path.size()<<"\r\n";
+            log<<path.size();
+        }
 		simplify_rrt_trees(simplified_path,obstaclesMap);
 
-        ss<<"Path simplified to:"<<simplified_path.size();
-
-		rout("%s",ss.str().c_str());
+        {
+            log<<simplified_path.size();
+            ss<<"Path simplified to:"<<simplified_path.size();
+		    rout("%s",ss.str().c_str());
+        }
         WPS ret_wps=simplified_path;
 
         if(_p->minimumsnap_en)
@@ -543,6 +606,7 @@ Direct_RRT::RRT_STATE_C Direct_RRT::plan(
             }
             double end_time = ros::Time::now().toSec();
             rout("MinimumSnap start time %f,end time:%f.",start_time,end_time);
+            log<<start_time<<end_time;
         }else{
             ret_wps.clear();
             ret_wps.push_back(start);
@@ -560,9 +624,11 @@ Direct_RRT::RRT_STATE_C Direct_RRT::plan(
                 rrt_vis2->push_to_rviz(RRTtree_2);
             }
         }
+        log.end();
 	}
 	else{
         rout("no found");
+        log.end();
 	    return RRT_STATE_C::RRT_FAILED;
         // simplified_path.push_back(WP(1,0,0));
 	}
@@ -575,14 +641,14 @@ Direct_RRT::RRT_STATE_C Direct_RRT::plan(
 	return RRT_STATE_C::FOUND_AVALIABLE_PATH;
 }
 
-void Direct_RRT::set_rrt(){
+void CONNECT_RRT::set_rrt(){
     grow_status=GROW_STATUS::rrt;
 }
 
-void Direct_RRT::set_direct(){
+void CONNECT_RRT::set_direct(){
     grow_status=GROW_STATUS::direct;
 }
-bool Direct_RRT::check_if_rrt_status(){
+bool CONNECT_RRT::check_if_rrt_status(){
     if(grow_status==GROW_STATUS::rrt){
         return true;
     }
@@ -590,7 +656,7 @@ bool Direct_RRT::check_if_rrt_status(){
         return false;
     }
 }
-void Direct_RRT::get_sampling_points(TreeNode_t &new_point,const TreeNode_t start ,const TreeNode_t end){
+void CONNECT_RRT::get_sampling_points(TreeNode_t &new_point,const TreeNode_t start ,const TreeNode_t end){
 
     double rand_num_x = (*rd)()%100000000/100000000.;
     double rand_num_y = (*rd)()%100000000/100000000.;
@@ -608,7 +674,7 @@ void Direct_RRT::get_sampling_points(TreeNode_t &new_point,const TreeNode_t star
     new_point.y=y;
 }
 
-void Direct_RRT::get_sampling_points(TreeNode_t &new_point){
+void CONNECT_RRT::get_sampling_points(TreeNode_t &new_point){
 
     double rand_num_x = (*rd)()%100000000/100000000.;
     double rand_num_y = (*rd)()%100000000/100000000.;
@@ -624,7 +690,7 @@ void Direct_RRT::get_sampling_points(TreeNode_t &new_point){
 }
 
 
-Direct_RRT::Direct_RRT(std::random_device *_rd_,std::mutex *_mtx_,Parameters *_p_,UNIVERSAL_STATE *_unity_,UAVCONTROL_INTERFACE *_mavlink_p_,PROBABILISTIC_MAP *_grid_map_):RRT_Base(_rd_,_mtx_,_p_,_unity_,_mavlink_p_,_grid_map_){
+CONNECT_RRT::CONNECT_RRT(std::random_device *_rd_,std::mutex *_mtx_,Parameters *_p_,UNIVERSAL_STATE *_unity_,UAVCONTROL_INTERFACE *_mavlink_p_,PROBABILISTIC_MAP *_grid_map_):RRT_Base(_rd_,_mtx_,_p_,_unity_,_mavlink_p_,_grid_map_){
     
     ros::NodeHandle nh;
     minimumsnap_client = std::make_shared<ros::ServiceClient>(nh.serviceClient<minimumsnap_route::service>("minimumsnap_route/minimumsnap_calc_request"));
@@ -646,7 +712,7 @@ Direct_RRT::Direct_RRT(std::random_device *_rd_,std::mutex *_mtx_,Parameters *_p
 }
 
 
-void Direct_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
+void CONNECT_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
                             ,FLY_PLAN_T &current_route)
 {
     ros::Rate *loop_rate = new ros::Rate(20);

@@ -1,10 +1,10 @@
 #ifndef __FLIGHT_TASK__
 #define __FLIGHT_TASK__
 #include "ros/ros.h"
-#include "baseType.h"
-#include "baseMethod.h"
-#include "uavcontrol_interface.h"
-#include "flow_attacher.h"
+#include "base/baseType.h"
+#include "base/baseMethod.h"
+#include "uav_link_ifs/uavcontrol_interface.h"
+#include "flight_task/flow_attacher.h"
 
 
 class FLIGHT_TASK:public __BASE_METHOD__{

@@ -1,6 +1,6 @@
 
-#include "cfg.h"
-#include "uavcontrol_interface.h"
+#include "base/cfg.h"
+#include "uav_link_ifs/uavcontrol_interface.h"
 
 extern   Parameters *_p;
 extern   UNIVERSAL_STATE *_unity;

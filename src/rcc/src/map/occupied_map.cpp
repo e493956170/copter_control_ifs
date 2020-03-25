@@ -1,7 +1,7 @@
-#include "occupied_map.h"
+#include "map/occupied_map.h"
 #include "octomap_msgs/Octomap.h"
 #include "octomap_msgs/conversions.h"
-#include "baseType.h"
+#include "base/baseType.h"
 using namespace cv;
 
 //声明advertise，octomap rviz plug in 默认接受topic为octomap_full的message

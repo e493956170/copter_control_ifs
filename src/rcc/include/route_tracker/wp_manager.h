@@ -4,11 +4,11 @@
 #include <thread>
 #include <functional>
 #include <ros/ros.h>
-#include "baseMethod.h"
-#include "baseType.h"
-#include "uavcontrol_interface.h"
-#include "cfg.h"
-#include "occupied_map.h"
+#include "base/baseMethod.h"
+#include "base/baseType.h"
+#include "uav_link_ifs/uavcontrol_interface.h"
+#include "base/cfg.h"
+#include "map/occupied_map.h"
 
 
 class WP_UPDATER:public __BASE_METHOD__{

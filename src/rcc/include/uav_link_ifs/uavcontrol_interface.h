@@ -5,9 +5,9 @@
 #include <sensor_msgs/Range.h>
 #include <nav_msgs/Path.h>
 #include <nav_msgs/Odometry.h>
-#include "cfg.h"
+#include "base/cfg.h"
 #include "geometry_msgs/Twist.h"
-#include "baseType.h"
+#include "base/baseType.h"
 
 class UAVCONTROL_INTERFACE{
 public:

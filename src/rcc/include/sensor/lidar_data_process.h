@@ -3,13 +3,13 @@
 #define __LIDAR_DATA_PROCESS__
 
 #include "ros/ros.h"
-#include "cfg.h"
-#include "baseMethod.h"
-#include "baseType.h"
+#include "base/cfg.h"
+#include "base/baseMethod.h"
+#include "base/baseType.h"
 #include "mutex"
 #include <thread>
 #include <functional>
-#include "occupied_map.h"
+#include "map/occupied_map.h"
 #include <random>
 #include <pcl_ros/point_cloud.h>
 #include <pcl/filters/voxel_grid.h>

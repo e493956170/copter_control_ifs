@@ -1,4 +1,4 @@
-#include "rviz_visualize.h"
+#include "vis_and_log/rviz_visualize.h"
 
 __VISUALIZE_MARKER__::__VISUALIZE_MARKER__(std::string name,std::string type,std::string marker_type,std::string refresh_method){
     ros::NodeHandle nh;

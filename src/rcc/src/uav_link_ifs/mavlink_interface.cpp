@@ -1,4 +1,4 @@
-#include "mavlink_interface.h"
+#include "uav_link_ifs/mavlink_interface.h"
 #include <nav_msgs/Path.h>
 #include <nav_msgs/Odometry.h>
 #include "tf/transform_datatypes.h"

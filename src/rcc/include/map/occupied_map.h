@@ -2,12 +2,13 @@
 #define _OCCUPIED_MAP
 
 #include <ros/ros.h>
-#include "baseMethod.h"
+#include "base/baseMethod.h"
+#include "base/baseType.h"
+
 #include "octomap/octomap.h"
 #include <pcl/point_types.h>
 #include <pcl_ros/point_cloud.h>
 
-#include "baseType.h"
 #include "Eigen/Dense"
 #include "Eigen/Eigen"
 

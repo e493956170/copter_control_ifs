@@ -1,10 +1,10 @@
 #ifndef __MAVLINK_INTERFACE_H__
 #define __MAVLINK_INTERFACE_H__
-#include "uavcontrol_interface.h"
+#include "uav_link_ifs/uavcontrol_interface.h"
 #include "ros/ros.h"
 #include <nav_msgs/Path.h>
 #include <nav_msgs/Odometry.h>
-#include "cfg.h"
+#include "base/cfg.h"
 #include "geometry_msgs/Twist.h"
 #include <mavros_msgs/State.h>
 #include <mavros_msgs/Mavlink.h>

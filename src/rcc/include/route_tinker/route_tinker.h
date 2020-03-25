@@ -1,22 +1,20 @@
 #ifndef ROUTE_FINDER
 #define ROUTE_FINDER
-#include"omp.h"
-#include <ros/ros.h>
+#include "omp.h"
 #include <random>
-#include "route_tracker.h"
+#include "route_tracker/route_tracker.h"
 #include <minimumsnap_route/service.h>
 #include <algorithm>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/eigen.hpp>
-#include "cfg.h"
 #include "mutex"
 #include <thread>
 #include <functional>
-#include "baseMethod.h"
-#include "baseType.h"
-#include "octomap/octomap.h"
-#include "occupied_map.h"
-#include "rviz_visualize.h"
+#include "base/cfg.h"
+#include "base/baseMethod.h"
+#include "base/baseType.h"
+#include "map/occupied_map.h"
+#include "vis_and_log/rviz_visualize.h"
 /*                                                                                                                      
                                                                                                              G08             
                                                                                                ,f     Ltf0L0L0@@G0   C08     
@@ -190,7 +188,7 @@ protected:
 };
 
 
-class Direct_RRT:public RRT_Base{
+class CONNECT_RRT:public RRT_Base{
 
     enum class GROW_STATUS{
         direct,
@@ -206,10 +204,11 @@ class Direct_RRT:public RRT_Base{
     std::shared_ptr<visualizer_marker> land_mark_vis;
     std::shared_ptr<visualizer_marker> check_radius_vis;
 
-
+    WPS get_RRT_Path(Tree_t RRTtree);
+    WPS combine_two_rrt_path(Tree_t RRTtree1,Tree_t RRTtree2);
 
 public :
-    Direct_RRT(std::random_device *_rd_,std::mutex *_mtx_,Parameters *_p_,UNIVERSAL_STATE *_unity_,UAVCONTROL_INTERFACE *_mavlink_p_,PROBABILISTIC_MAP *_grid_map_);
+    CONNECT_RRT(std::random_device *_rd_,std::mutex *_mtx_,Parameters *_p_,UNIVERSAL_STATE *_unity_,UAVCONTROL_INTERFACE *_mavlink_p_,PROBABILISTIC_MAP *_grid_map_);
 
     void Create_Thread(
 								 PROBABILISTIC_MAP &GridMap

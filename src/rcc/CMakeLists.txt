@@ -47,13 +47,22 @@ include_directories(
 include_directories(
   ../../devel/include 
 )
+
 aux_source_directory(src DIR_SRCS)  ##查找目录下的所有文,然后存入变量 DIR_SRCS
 aux_source_directory(src/flight_task flight_task_SRCS)  ##查找目录下的所有文,然后存入变量 DIR_SRCS
+aux_source_directory(src/sensor sensor_SRCS)  ##查找目录下的所有文,然后存入变量 DIR_SRCS
+aux_source_directory(src/route_tinker route_tinker_SRCS)  ##查找目录下的所有文,然后存入变量 DIR_SRCS
+aux_source_directory(src/route_tracker route_tracker_SRCS)  ##查找目录下的所有文,然后存入变量 DIR_SRCS
+aux_source_directory(src/uav_link_ifs uav_link_ifs_SRCS)  ##查找目录下的所有文,然后存入变量 DIR_SRCS
+aux_source_directory(src/map map_SRCS)  ##查找目录下的所有文,然后存入变量 DIR_SRCS
+aux_source_directory(src/vis_and_log vis_and_log_SRCS)  ##查找目录下的所有文,然后存入变量 DIR_SRCS
+aux_source_directory(src/base base_SRCS)  ##查找目录下的所有文,然后存入变量 DIR_SRCS
+
 
 include_directories(include)  
 include_directories(mavlink)
 message(STATUS "    源文件列表：${DIR_SRCS}")
-ADD_EXECUTABLE(rcc ${DIR_SRCS} ${flight_task_SRCS})
+ADD_EXECUTABLE(rcc ${DIR_SRCS} ${flight_task_SRCS} ${sensor_SRCS} ${route_tracker_SRCS} ${route_tinker_SRCS} ${uav_link_ifs_SRCS} ${map_SRCS} ${vis_and_log_SRCS} ${base_SRCS})
 FIND_PACKAGE(PCL REQUIRED COMPONENTS visualization )
 
 target_link_libraries(rcc  
