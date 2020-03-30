@@ -31,6 +31,7 @@ int FIGHT_TASK_WP_POINT_PURE_PERSUIT::Pure_pusuit(FLY_PLAN_T &fly_plan
     target_y = fly_plan[idx].y;
     target_yaw = atan2(target_y-attpos.pos_y,target_x-attpos.pos_x);
     _unity->current_idx=idx;
+    fly_plan.current_idx = idx;
     if(idx==fly_plan.size()-1&&calc_dist(WP(attpos.pos_x,attpos.pos_y,0),*(fly_plan.wps.end()-1))<0.3){
         // target_yaw=angle_add(atan2(fly_plan[idx-1].y - fly_plan[idx].y,fly_plan[idx-1].x - fly_plan[idx].x),M_PI);
         rout("FIGHT_TASK_WP_POINT_PURE_PERPUIT:%f ,y:%f COMPLETE.",fly_plan[idx].x,fly_plan[idx].y);

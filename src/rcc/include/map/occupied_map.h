@@ -15,6 +15,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/eigen.hpp>
 #include <mutex>
+#include "vis_and_log/rviz_visualize.h"
 typedef pcl::PointXYZ PT;
 typedef pcl::PointCloud<PT> PTC;
 
@@ -50,6 +51,7 @@ private:
 //@param:x->index of col
 //@param:y->index of row
     void index_check(int &x,int &y);
+
 }OBSTACLE_GRID_MAP;
 
 
@@ -62,6 +64,8 @@ class PROBABILISTIC_MAP:public CoordinateTransform{
     std::shared_ptr<ros::Publisher> pub_octomap;
     double map_griz_size = 0.2;
     ros::Time time;
+    std::shared_ptr<visualizer_marker> lidar_data_vis;
+
 public:
 
     std::shared_ptr<octomap::OcTree> tree;
@@ -72,8 +76,7 @@ public:
     PROBABILISTIC_MAP(std::mutex *_mtx_,Parameters *_p_,UNIVERSAL_STATE *_unity_,UAVCONTROL_INTERFACE *_mavlink_p_);
     enum class GRID_STATUS{
         HIT,
-        MISS,
-        
+        MISS,        
     };
     void update_grid(int x ,int y ,GRID_STATUS hit_or_miss);
     bool check_grid(int x,int y );
@@ -82,9 +85,7 @@ public:
     bool isSpeckleNode(octomap::OcTree::iterator Node);
     void update_grid(WP _wp_ ,GRID_STATUS hit_or_miss);
     double check_grid(WP _wp_);
-
     void update_from_cloud(const PTC &cloud,const PTC &edge,copter_local_pos_att_t * attpos);
-
     void push_to_rviz();
     cv::Mat get_whole_map();
     void set_center(int x,int y);

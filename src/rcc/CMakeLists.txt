@@ -2,7 +2,14 @@ cmake_minimum_required(VERSION 2.8.3)
 project(rcc)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-SET(CMAKE_BUILD_TYPE "Release")
+# SET(CMAKE_BUILD_TYPE "Release")
+
+
+SET(CMAKE_BUILD_TYPE "Debug")
+SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g -ggdb")
+SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
+
+
 add_compile_options(-std=c++11)
 add_compile_options(-fopenmp)
 FIND_PACKAGE( OpenMP REQUIRED)

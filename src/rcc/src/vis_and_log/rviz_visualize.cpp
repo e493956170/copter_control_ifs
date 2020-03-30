@@ -34,6 +34,13 @@ void __VISUALIZE_MARKER__::set_attribue(double r,double g,double b){
     marker.color.g=g;
     marker.color.b=b;
 }
+void __VISUALIZE_MARKER__::set_attribue(double r,double g,double b,double a){
+    marker.color.r=r;
+    marker.color.g=g;
+    marker.color.b=b;
+    marker.color.a=a;
+
+}
 void __VISUALIZE_MARKER__::set_attribue(double r,double g,double b,double a,double scale_x,double scale_y,double scale_z){
     marker.scale.x=scale_x;
     marker.scale.y=scale_y;

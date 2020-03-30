@@ -43,6 +43,8 @@ PROBABILISTIC_MAP::PROBABILISTIC_MAP(std::mutex *_mtx_,Parameters *_p_,UNIVERSAL
     tree->setProbMiss(0.4);
     tree->setClampingThresMin(0.005);
     tree->setClampingThresMax(0.999);
+    lidar_data_vis = lidar_data_vis->init("lidar_data_vis","marker","point","refresh");
+    lidar_data_vis->set_attribue(0,1,0,0.7);
 }
 
 double PROBABILISTIC_MAP::check_grid(int row,int col ,int z){
@@ -94,6 +96,7 @@ void PROBABILISTIC_MAP::update_from_cloud(const PTC &cloud,const PTC &edge,copte
         cloud_ed.push_back(edge[i].x,edge[i].y,edge[i].z);     
     }
     cloud_ed.transform(octomath::Pose6D(attpos->pos_x,attpos->pos_y,attpos->pos_z,attpos->roll,attpos->pitch,attpos->yaw));
+
     for(auto cloud_iter = cloud_ed.begin();cloud_iter!=cloud_ed.end();cloud_iter++){
         ray.reset();
         tree->computeRayKeys(octomap::point3d(attpos->pos_x,attpos->pos_y,attpos->pos_z),*cloud_iter,ray);
@@ -109,6 +112,8 @@ void PROBABILISTIC_MAP::update_from_cloud(const PTC &cloud,const PTC &edge,copte
     tree->insertPointCloud(cloud_oc,octomap::point3d(0.1,0,0)
                             ,octomath::Pose6D(attpos->pos_x,attpos->pos_y,attpos->pos_z,attpos->roll,attpos->pitch-0.12,attpos->yaw)
                             ,45,true,true);
+    // lidar_data_vis->push_to_rviz(cloud_oc);
+    
 
     OBSTACLE_GRID_MAP tmpMap(Gridmap);
     tmpMap.map.resize(Gridmap.map.rows(),Gridmap.map.cols());
@@ -153,13 +158,12 @@ bool PROBABILISTIC_MAP::isSpeckleNode(octomap::OcTree::iterator Node){
                     if (node && tree->isNodeOccupied(node)){
                         // we have a neighbor => break!
                         neighborFound = true;
-                        return neighborFound;
                     }
                 }
             }
         }
     }
-    return false;
+    return neighborFound;
 }
 
 cv::Mat PROBABILISTIC_MAP::get_whole_map(){
@@ -176,13 +180,14 @@ void PROBABILISTIC_MAP::set_center(int x,int y ){
     Gridmap.center_y=y;
 }
 
-void OBSTACLE_GRID_MAP::index_check(int &x,int &y){ 
+void OBSTACLE_GRID_MAP::index_check(int &_row_,int &_col_){ 
     int offset_more=map_expand_size;
-    if(x<0){
+    if(_col_<0){
         int cur_cols=map.cols();
         int cur_rows=map.rows();
-        int d_x = -x+offset_more;
+        int d_x = -_col_+offset_more;
         Eigen::MatrixXd tmp;
+        
         tmp.resize(cur_rows,cur_cols+d_x);
         tmp.setZero();
         tmp.block(0,d_x,cur_rows,cur_cols)=map;
@@ -190,28 +195,14 @@ void OBSTACLE_GRID_MAP::index_check(int &x,int &y){
         map.resizeLike(tmp);
         map.setZero();
         map=tmp;
-        x=offset_more;
+        _col_=offset_more;
         rout("x<  ,map resize %d %d to %d %d",cur_rows,cur_cols,map.rows(),map.cols());
     }
-    if(y<0){
+    if(_col_>=map.cols()){
         int cur_cols=map.cols();
         int cur_rows=map.rows();
-        int d_y = -y+offset_more;
-        Eigen::MatrixXd tmp;
-        tmp.resize(cur_cols+d_y,cur_rows);
-        tmp.setZero();
-        tmp.block(d_y,0,cur_rows,cur_cols)=map;
-        center_y +=d_y;//offset x  
-        map.resizeLike(tmp);
-        map.setZero();
-        map=tmp; 
-        y=offset_more;   
-        rout("y<  ,map resize %d %d to %d %d",cur_rows,cur_cols,map.rows(),map.cols());
-    }
-    if(x>=map.cols()){
-        int cur_cols=map.cols();
-        int cur_rows=map.rows();
-        int d_x = x-map.cols()+1+offset_more;
+        int d_x = _col_-map.cols()+1+offset_more;
+
         Eigen::MatrixXd tmp;
         tmp.setZero();
         tmp.resize(cur_rows,cur_cols+d_x);
@@ -219,14 +210,30 @@ void OBSTACLE_GRID_MAP::index_check(int &x,int &y){
         map.resizeLike(tmp);
         map.setZero();
         map=tmp;
-        // x=map.cols()-1-offset_more;
+        // x=map.cols()-1-offset_more;NO add
         rout("x>= ,map resize %d %d to %d %d",cur_rows,cur_cols,map.rows(),map.cols());
-
     }  
-    if(y>=map.rows()){
+    if(_row_<0){
         int cur_cols=map.cols();
         int cur_rows=map.rows();
-        int d_y = y-map.rows()+1+offset_more;
+        int d_y = -_row_+offset_more;
+
+        Eigen::MatrixXd tmp;
+        tmp.resize(cur_rows+d_y,cur_cols);
+        tmp.setZero();
+        tmp.block(d_y,0,cur_rows,cur_cols)=map;
+        center_y +=d_y;//offset x  
+        map.resizeLike(tmp);
+        map.setZero();
+        map=tmp; 
+        _row_=offset_more;   
+        rout("y<  ,map resize %d %d to %d %d",cur_rows,cur_cols,map.rows(),map.cols());
+    }
+
+    if(_row_>=map.rows()){
+        int cur_cols=map.cols();
+        int cur_rows=map.rows();
+        int d_y = _row_-map.rows()+1+offset_more;
         Eigen::MatrixXd tmp;
         tmp.setZero();
         tmp.resize(cur_rows+d_y,cur_cols);
@@ -234,13 +241,12 @@ void OBSTACLE_GRID_MAP::index_check(int &x,int &y){
         map.resizeLike(tmp);
         map.setZero();
         map=tmp;
-        // y=map.rows()-1-offset_more;
-        rout("x>= ,map resize %d %d to %d %d",cur_rows,cur_cols,map.rows(),map.cols());
+        // y=map.rows()-1-offset_more;;NO add
+        rout("y>= ,map resize %d %d to %d %d",cur_rows,cur_cols,map.rows(),map.cols());
     }          
 }
 
 void OBSTACLE_GRID_MAP::set_grid(int x ,int y,double value){  //col first
-        index_check(x,y);
+        index_check(y,x);
         map(y,x)=value;
-        // rout("map(y,x)%f %f",map(y,x),value);
 }

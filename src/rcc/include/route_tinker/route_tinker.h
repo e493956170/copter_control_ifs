@@ -66,19 +66,34 @@ public:
     typedef class TREE_NODE_T:public __WAYPOINT_T__{
     public:
         TREE_NODE_T(){};
-        TREE_NODE_T(WP __p,int __index,int __father_index,int __children_index){
+        template<typename T>
+        TREE_NODE_T(T __p,int __index,int __father_index,int __children_index){
             x=__p.x;
             y=__p.y;
             z=__p.z;
             father_index=__father_index;
             children_index=__children_index;
             index=__index;
+            // area_x_idx=x/5;
+            // area_y_idx=y/5;
+        }
+        template<typename T>
+        TREE_NODE_T(T __p){
+            x=__p.x;
+            y=__p.y;
+            z=__p.z;
+            // area_x_idx=x/5;
+            // area_y_idx=y/5;
+            // area_z_idx=y/5;
         }
         int father_index=-1; 
         int children_index=-1;
         int index=-1;
+        int area_x_idx=0;
+        int area_y_idx=0;
+        int area_z_idx=0;
     }TreeNode_t;
-    void tapimg( Mat &img,  TreeNode_t node ,OBSTACLE_GRID_MAP obstaclesMap){
+    inline void tapimg( Mat &img,  TreeNode_t node ,OBSTACLE_GRID_MAP obstaclesMap){
         int x = node.x/0.2+obstaclesMap.center_x;
         int y = node.y/0.2+obstaclesMap.center_y;
         if(x<0||y<0||y>=obstaclesMap.rows()||x>=obstaclesMap.cols()) return ;
@@ -103,32 +118,65 @@ public:
     };
 
     typedef class TREE_T:public __BASE_METHOD__{
+        int root_index=0;
+        
     public:
         TREE_T(){};
-        TREE_T(TreeNode_t __init_node)   {tree.push_back(__init_node);}
+        std::string name ; 
+        TREE_T(TreeNode_t __init_node,std::string _name){name=_name;__init_node.name=name;tree.push_back(__init_node);}
         std::vector<TreeNode_t> tree;
         int size(){return tree.size();}
-        void push_back(TreeNode_t __node){tree.push_back(__node);}
+        void push_back(TreeNode_t __node){__node.name=name;tree.push_back(__node);}
         TreeNode_t &operator [](int __idx){
             return tree[__idx];
         }
-        int &operator() (const int &__idx,const string &__cmd){
+        int &operator()(const int &__idx,const string &__cmd){
             if(__cmd=="father_idx"){
                 return tree[__idx].father_index;
             }
             return tree[__idx].father_index;
         }
-        void operator() (const TreeNode_t &father,const TreeNode_t &new_node){
-            TreeNode_t tmp;
-            tmp=new_node;
-            tmp.index=size();
-            tmp.father_index=father.index;
+        void erase(std::vector<TreeNode_t>::iterator it){
+            tree.erase(it);
+        }
+        std::vector<TreeNode_t>::iterator begin(){return tree.begin();}
+        std::vector<TreeNode_t>::iterator end(){return tree.end();}
+
+        void operator() (const TreeNode_t &father,TreeNode_t &new_node){
+            new_node.index=size();
+            new_node.father_index=father.index;
             // rout("father index -> %d self index -> %d ",tmp.father_index,tmp.index);
-            tmp.children_index=-1;
-            tree[father.index].children_index=tmp.index;
-            tree.push_back(tmp);
+            new_node.children_index=-1;
+            tree[father.index].children_index=new_node.index;
+            tree.push_back(new_node);
+            // new_node.index--;//dirty trick，更新new_node的索引
         }
 
+        int get_root_index(){return root_index;}
+        void set_root_index(int idx){root_index=idx;}
+
+        std::vector<TreeNode_t> __reorder__(std::vector<TreeNode_t> tree_copy,int start_index,int &last_index){
+            //由于是单链条，所以用此记录子节点
+            if(tree[start_index].father_index>=0)//父节点存在
+            {
+                tree_copy[tree[start_index].father_index].father_index=start_index;
+                last_index=start_index;
+                return __reorder__(tree_copy,tree[start_index].father_index,last_index);
+            }
+            //父节点不存在，指向子节点
+            if(last_index<0)
+                tree_copy[tree[start_index].father_index].father_index=last_index;
+            return tree_copy;
+        }
+
+        void reorder(int _root_index){
+            int last_index=0;
+            std::vector<TreeNode_t>  tree_copy=tree;
+            tree=__reorder__(tree_copy,_root_index,last_index);
+            this->root_index=_root_index;
+            tree[root_index].father_index=-1;
+            // rout("reorder_success . ");
+        }
         void swap(TREE_T &__swap_obj){
             TREE_T tmp;
             tmp = *this;
@@ -141,26 +189,13 @@ public:
         void set_path_end(int end_node_idx){
             path_end_idx=end_node_idx;
         }
-        int path_end_idx=0;
-        TreeNode_t &get_cloest(TreeNode_t __node){
-            double min_dist = calc_dist(tree[0],__node);
-            int min_dist_index = 0;
-            for (int i=1;i<size();i++){
-                auto tmp_dist = calc_dist(tree[i],__node);
-                if(tmp_dist<min_dist){
-                    min_dist=tmp_dist;
-                    min_dist_index=i;
-                }
-            }
-            return tree[min_dist_index];            
+        TreeNode_t &get_root_node(){
+            return (*this)[root_index];
         }
-        
-        std::vector<TreeNode_t>::iterator end(){return tree.end();} 
-        std::vector<TreeNode_t>::iterator begin(){return tree.begin();}
-        private:
+        int path_end_idx=0;
 
     }Tree_t;
-
+    int get_nearst_point_index(Tree_t trees,TreeNode_t new_point);
     TreeNode_t get_nearst_point(Tree_t trees,TreeNode_t new_point);//step2
     TreeNode_t get_nearst_point(Tree_t trees,TreeNode_t new_point,TreeNode_t target);//step2
     double calc_grow_theta(TreeNode_t cloest_point,TreeNode_t new_point);//step3.1
@@ -170,7 +205,6 @@ public:
     bool check_if_path_ok(TreeNode_t cloest_point,TreeNode_t new_point,OBSTACLE_GRID_MAP &obstaclesMap);//step4 step0
     bool check_if_reached_goal(TreeNode_t goal_point,TreeNode_t new_point,double threshold);//step5
     bool check_if_new_point_too_close_to_other_points(Tree_t trees,TreeNode_t new_point,double threshold,int skip_idx);//step6
-    bool push_new_point(Tree_t &trees,TreeNode_t cloest_point,TreeNode_t new_point);//step7
     WPS get_rrt_path(Tree_t &src_trees);
     WPS get_rrt_path(Tree_t &first_tree,Tree_t &sec_tree);
     void simplify_rrt_trees(WPS &path,OBSTACLE_GRID_MAP &obstaclesMap);
@@ -200,6 +234,9 @@ class CONNECT_RRT:public RRT_Base{
     std::shared_ptr<minimumsnap_route::service> minimumsnap_srv;
     std::shared_ptr<visualizer_marker> route_vis;
     std::shared_ptr<visualizer_marker> rrt_vis;
+    std::shared_ptr<visualizer_marker> simplified_vis;
+    std::shared_ptr<visualizer_marker> rrt_path_vis;
+    std::shared_ptr<visualizer_marker> rrt_new_point_vis;
     std::shared_ptr<visualizer_marker> rrt_vis2;
     std::shared_ptr<visualizer_marker> land_mark_vis;
     std::shared_ptr<visualizer_marker> check_radius_vis;
@@ -223,12 +260,27 @@ public :
     void get_sampling_points(TreeNode_t &new_point,const TreeNode_t start ,const TreeNode_t end);
     void set_sample_limit(double angle_start,double angle_end,double min_sample_dist,double max_sample_dist); //根据sick激光雷达特性设计
     void set_direct();    void set_rrt();    bool check_if_rrt_status();
+
+
+    Tree_t rrt_to_point(Tree_t RRTtree,TreeNode_t target,OBSTACLE_GRID_MAP &obstaclesMap);
+
+    Tree_t trim_tree(Tree_t RRTtree,OBSTACLE_GRID_MAP &obstaclesMap);
+
+    std::vector<int> find_all_son_index(Tree_t RRTtree,int start_index,std::vector<int>list,bool *finded_mask);
+
     RRT_STATE_C plan(	         copter_local_pos_att_t att_pos_copy  
                                 ,OBSTACLE_GRID_MAP &obstaclesMap
                                 ,FLY_PLAN_T &current_route
                                 ,cv::Mat &Path
                                 ,std::vector<Tree_t> &get_trees
             );
+    RRT_STATE_C plan_online(copter_local_pos_att_t att_pos_copy  
+                            ,OBSTACLE_GRID_MAP &obstaclesMap
+                            ,FLY_PLAN_T &current_route
+                            ,cv::Mat &Path
+                            ,std::vector<Tree_t> &get_trees
+                            ,std::vector<WPS> &save_route 
+                        );
 };
 
 

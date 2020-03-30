@@ -13,6 +13,7 @@ public:
 	double x=0;double y=0;double z=0;
     __WAYPOINT_T__(double _x_,double _y_,double _z_):x(_x_),y(_y_),z(_z_){}
     __WAYPOINT_T__(){}
+	std::string name="";
 }WP,HLWP;
 
 
@@ -59,7 +60,7 @@ public:
 	void push_back(WP wp){
 		wps.push_back(wp);
 	}
-
+	int current_idx = 0;
 }FLY_PLAN_T;
 
 

@@ -14,14 +14,36 @@
 #include <opencv2/core/eigen.hpp>
 #include <iostream>
 #include <chrono>
+#include <algorithm>   
 using namespace cv;
 
-
-
-RRT_Base::TreeNode_t RRT_Base::get_nearst_point(Tree_t trees,TreeNode_t new_point){
+int RRT_Base::get_nearst_point_index(Tree_t trees,TreeNode_t new_point){
     double min_dist = calc_dist(trees[0],new_point);
     int min_dist_index = 0;
+    // int area_x = new_point.x/5;
+    // int area_y = new_point.y/5;
     for (int i=1;i<trees.size();i++){
+        // if(trees[i].area_x_idx<(area_x-2)||trees[i].area_x_idx<(area_x+2)) continue;
+        // if(trees[i].area_y_idx<(area_y-2)||trees[i].area_y_idx<(area_y+2)) continue;
+
+        auto tmp_dist = calc_dist(trees[i],new_point);
+        if(tmp_dist<min_dist){
+            min_dist=tmp_dist;
+            min_dist_index=i;
+        }
+    }
+    return min_dist_index;
+}
+
+RRT_Base::TreeNode_t RRT_Base::get_nearst_point(Tree_t trees,TreeNode_t new_point){
+
+    double min_dist = calc_dist(trees[0],new_point);
+    int min_dist_index = 0;
+    // int area_x = new_point.x/5;
+    // int area_y = new_point.y/5;
+    for (int i=0;i<trees.size();i++){
+        // if(trees[i].area_x_idx<(area_x-2)||trees[i].area_x_idx<(area_x+2)) continue;
+        // if(trees[i].area_y_idx<(area_y-2)||trees[i].area_y_idx<(area_y+2)) continue;
         auto tmp_dist = calc_dist(trees[i],new_point);
         if(tmp_dist<min_dist){
             min_dist=tmp_dist;
@@ -57,7 +79,7 @@ RRT_Base::TreeNode_t RRT_Base::extend_a_step(TreeNode_t cloest_point,double step
     cloest_point.x+=step_size*sin(rad);
     cloest_point.y+=step_size*cos(rad);
     cloest_point.z=_p->target_pos_z;
-    TreeNode_t tmp = cloest_point;
+    TreeNode_t tmp(cloest_point);
     return tmp;
 }
 
@@ -141,16 +163,7 @@ bool RRT_Base::check_if_new_point_too_close_to_other_points(Tree_t trees,TreeNod
     return false;
 }
 
-bool RRT_Base::push_new_point(Tree_t &trees,TreeNode_t cloest_point,TreeNode_t new_point){
-    TreeNode_t tmp;
-    tmp=new_point;
-    tmp.index=trees.size();
-    tmp.father_index=cloest_point.index;
-    // rout("father index -> %d self index -> %d ",tmp.father_index,tmp.index);
-    tmp.children_index=-1;
-    trees[cloest_point.index].children_index=tmp.index;
-    trees.push_back(tmp);
-}
+
 
 WPS RRT_Base::get_rrt_path(Tree_t &src_trees){
     
@@ -199,24 +212,19 @@ WPS RRT_Base::get_rrt_path(Tree_t &first_tree,Tree_t &sec_tree){
 }
 
 void RRT_Base::simplify_rrt_trees(WPS &path,OBSTACLE_GRID_MAP &obstaclesMap){
-    int i =0;
     WPS tmp_path;
     tmp_path.push_back(path[0]);
     
     for(int i=0;i<path.size();i++){
         bool found=false;
-        int farest_idx = i;
         for(int j=i+1;j<path.size();j++){
             if(check_if_path_ok(path[i],path[j],obstaclesMap)){
-                // rout("path ok");
             }
             else{
-                // if(farest_idx<j-1) farest_idx=j-1;
                 tmp_path.push_back(path[j-1]);
                 i=j-1;
                 found=true;
                 break;
-                // rout("path wrong");
             }
         }
         if(!found){
@@ -265,13 +273,12 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::minimumsnap_calc(
 {
 
     WPS ret_wp;
-    bool minimum_route=false;
-        minimumsnap_srv->request.waypointsx.clear();
-        minimumsnap_srv->request.waypointsy.clear();
-        minimumsnap_srv->request.waypointsz.clear();
-        minimumsnap_srv->request.waypointsid.clear();
-        minimumsnap_srv->request.startpva.clear();
-        minimumsnap_srv->request.endpva.clear();
+    minimumsnap_srv->request.waypointsx.clear();
+    minimumsnap_srv->request.waypointsy.clear();
+    minimumsnap_srv->request.waypointsz.clear();
+    minimumsnap_srv->request.waypointsid.clear();
+    minimumsnap_srv->request.startpva.clear();
+    minimumsnap_srv->request.endpva.clear();
 
     for(int i=0;i<path_input.size();i++)
     {
@@ -306,13 +313,13 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::minimumsnap_calc(
             minimumsnap_srv->response.ret_coefficients;
             minimumsnap_srv->response.ret_n_poly;
             minimumsnap_srv->response.ret_n_order;
-            for(int i=0;i<minimumsnap_srv->response.ret_wpx.size();i++){
+            for(uint32_t i=0;i<minimumsnap_srv->response.ret_wpx.size();i++){
                 ret_wp.push_back(
                     WP(
                         minimumsnap_srv->response.ret_wpx[i]
                         ,minimumsnap_srv->response.ret_wpy[i]
                         ,minimumsnap_srv->response.ret_wpz[i]
-                    )
+                    )   
                 );
             }
             path_output=ret_wp;
@@ -343,7 +350,6 @@ class LOG{
     virtual void title()=0;
     public:
     LOG(std::string file = "calc_time_log"){
-        static int cnt =0 ;
         static std::stringstream init_time;
         std::time_t today_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         init_time<< std::ctime(&today_time);
@@ -382,34 +388,33 @@ WPS CONNECT_RRT::get_RRT_Path(Tree_t RRTtree){
     WPS path;
     int last_idx = RRTtree.path_end_idx;
     while(last_idx>-1){
-    path.push_back(RRTtree[last_idx]);
-    last_idx=RRTtree(last_idx,"father_idx");
+        path.push_back(RRTtree[last_idx]);
+        // rout("%s x:%f y:%f z:%f %d",RRTtree.name.c_str(),RRTtree[last_idx].x,RRTtree[last_idx].y,RRTtree[last_idx].z,RRTtree[last_idx].index);
+        last_idx=RRTtree[last_idx].father_index;
     }
     return path;
 }
+
 WPS CONNECT_RRT::combine_two_rrt_path(Tree_t RRTtree1,Tree_t RRTtree2){
     WPS path;
+        // rout("2.1");
+    // for(int i=0;i<RRTtree1.size();i++){
+    //     rout("RRT %f %f %d %d",RRTtree1[i].x,RRTtree1[i].y,RRTtree1[i].index,RRTtree1[i].father_index);
+    // }
     WPS path1=get_RRT_Path(RRTtree1);
-    WPS path2=get_RRT_Path(RRTtree2);
-    if(RRTtree1(0,"father_idx")==-1&&RRTtree2(0,"father_idx")==-2){
-        for(int i = path2.size()-1;i>=0;i--){
-            path.push_back(path2[i]);
-            // rout("dd");
-        } 
+        // rout("2.2");
 
-        for(int i = 0;i<path1.size();i++){
-            path.push_back(path1[i]);
-        }
+    WPS path2=get_RRT_Path(RRTtree2);
+        // rout("2.3");
+
+    for(int i = path1.size()-1;i>=0;i--){//树1 正向添加
+        path.push_back(path1[i]);
     }
-    else{
-        for(int i = path1.size()-1;i>=0;i--){
-            path.push_back(path1[i]);
-        }
-        for(int i = 0;i<path2.size();i++){
-            path.push_back(path2[i]);
-        }
-    }
-    std::reverse(path.begin(),path.end());
+    // rout("2.4");
+    for(int i = 0;i<path2.size();i++){//树2 反向添加
+        path.push_back(path2[i]);
+    } 
+    // rout("2.5");
     return path;
 }
 
@@ -444,10 +449,10 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan(
     log<<start.x<<start.y<<target.x<<target.y;
 
 	rout("\r\n RRT Mission Started.\r\nstart x:%f,y:%f, end x:%f,y:%f.",start.x,start.y,target.x,target.y);
-	Tree_t RRTtree_1(start),RRTtree_2(target);
+	Tree_t RRTtree_1(start,"start"),RRTtree_2(target,"target");
 
 	set_direct();
-	bool find_path=false;	int iter=0;    auto grid_size = obstaclesMap.grid_size;
+	bool find_path=false;	int iter=0;  
     std::stringstream ss;
     if(_p->show_path_map)
     {
@@ -476,10 +481,10 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan(
 		}
 		else{
             if(RRTtree_1(0,"father_index")==-1){
-                newPoint_Tree_1 = target;
+                newPoint_Tree_1 = TreeNode_t(target);
             }
             else{
-                newPoint_Tree_1 = start; 
+                newPoint_Tree_1 = TreeNode_t(start); 
             }
 		}
 
@@ -590,30 +595,31 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan(
         }
         WPS ret_wps=simplified_path;
 
-        if(_p->minimumsnap_en)
-        if(simplified_path.size()>2){
-            double start_time = ros::Time::now().toSec();
-            switch(minimumsnap_calc(attpos
-                                        ,simplified_path
-                                        ,ret_wps))
-            {
-                case RRT_STATE_C::MINIMUMSNAP_SUCCESS:
-                    break;
-                case RRT_STATE_C::MINIMUMSNAP_FAILED:
-                    return RRT_STATE_C::MINIMUMSNAP_FAILED;
-                case RRT_STATE_C::MINIMUMSNAP_SRV_TIME_OUT_FAILED:
-                    return RRT_STATE_C::MINIMUMSNAP_SRV_TIME_OUT_FAILED;
+        if(_p->minimumsnap_en){
+            if(simplified_path.size()>2){
+                double start_time = ros::Time::now().toSec();
+                switch(minimumsnap_calc(attpos
+                                            ,simplified_path
+                                            ,ret_wps))
+                {
+                    case RRT_STATE_C::MINIMUMSNAP_SUCCESS:
+                        break;
+                    case RRT_STATE_C::MINIMUMSNAP_FAILED:
+                        return RRT_STATE_C::MINIMUMSNAP_FAILED;
+                    case RRT_STATE_C::MINIMUMSNAP_SRV_TIME_OUT_FAILED:
+                        return RRT_STATE_C::MINIMUMSNAP_SRV_TIME_OUT_FAILED;
+                }
+                double end_time = ros::Time::now().toSec();
+                rout("MinimumSnap start time %f,end time:%f.",start_time,end_time);
+                log<<start_time<<end_time;
+            }else{
+                ret_wps.clear();
+                ret_wps.push_back(start);
+                for (int i = 0 ; i <40;i++){
+                    ret_wps.push_back(WP(start.x+i*(target.x-start.x)/40.,start.y+i*(target.y-start.y)/40.,start.z+i*(target.z-start.z)/40.));
+                }
+                ret_wps.push_back(target);
             }
-            double end_time = ros::Time::now().toSec();
-            rout("MinimumSnap start time %f,end time:%f.",start_time,end_time);
-            log<<start_time<<end_time;
-        }else{
-            ret_wps.clear();
-            ret_wps.push_back(start);
-            for (int i = 0 ; i <40;i++){
-                ret_wps.push_back(WP(start.x+i*(target.x-start.x)/40.,start.y+i*(target.y-start.y)/40.,start.z+i*(target.z-start.z)/40.));
-            }
-            ret_wps.push_back(target);
         }
         current_route.wps=ret_wps;
         if(_p->show_path_map){
@@ -641,6 +647,453 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan(
 	return RRT_STATE_C::FOUND_AVALIABLE_PATH;
 }
 
+CONNECT_RRT::Tree_t CONNECT_RRT::rrt_to_point(Tree_t RRTtree,TreeNode_t target,OBSTACLE_GRID_MAP &obstaclesMap){
+    uint32_t iter_cnt=0;
+    uint32_t iter=0;
+    auto start = RRTtree.get_root_node();
+    
+    if(check_if_reached_goal(get_nearst_point(RRTtree,target),target,_p->rrt_reach_goal_thresh*2)){
+        rout("SKIP RRT TO POINT");
+        // RRTtree.set_path_end(target);
+        return RRTtree;
+    }
+	while(iter<_p->rrt_one_step_max_iterations)
+	{
+        iter_cnt++;
+		TreeNode_t newPoint_Tree;
+		if(check_if_rrt_status()){
+			get_sampling_points(RRTtree[RRTtree.get_root_index()],start,target);
+			set_direct();
+		}
+		else{
+            newPoint_Tree = TreeNode_t(target); 
+		}
+
+	    TreeNode_t cloest_point = get_nearst_point(RRTtree,newPoint_Tree,target);
+
+		double rad = calc_grow_theta(cloest_point,newPoint_Tree);
+
+		newPoint_Tree = extend_a_step(cloest_point,_p->rrt_step_size,rad);
+        
+		if(!check_if_path_ok(cloest_point,newPoint_Tree,obstaclesMap)){
+			iter++;
+			set_rrt();
+			continue;
+		}
+
+        if(check_if_new_point_too_close_to_other_points(RRTtree,newPoint_Tree,_p->rrt_too_close_size,cloest_point.index)){
+            iter++;
+            continue; //如果第一个点就没有添加成功，那就重新采样
+        }
+        RRTtree(cloest_point,newPoint_Tree);//树1添加一个点
+
+        //判断是否添加成功
+        if(check_if_reached_goal(newPoint_Tree,target,_p->rrt_reach_goal_thresh)){
+		    if(check_if_path_ok(target,newPoint_Tree,obstaclesMap)){
+                rout("RRTtree %d x:%f y:%f",RRTtree.get_root_index(),newPoint_Tree.x,newPoint_Tree.y);
+                RRTtree.set_path_end(newPoint_Tree);
+                break;
+            }
+        }
+		iter=0;
+	}
+    return RRTtree;
+}
+
+std::vector<int> CONNECT_RRT::find_all_son_index(Tree_t RRTtree,int start_index,std::vector<int>list,bool *finded_mask){
+
+    for(int i = 0;i<RRTtree.size();i++){ //遍历
+        if(finded_mask[i]) continue;//如已查过则跳过，这是为了避免多次检查，可能存在重复的工作
+        if(RRTtree[i].father_index==start_index){ //如果该树的父节点为起始节点
+            list.push_back(i);    //往list中添加
+            finded_mask[i]=true;  //标记为已经查过
+            // rout("f.2%d   %d",i,RRTtree[i].father_index);
+            list= find_all_son_index(RRTtree,i,list,finded_mask);//递归
+        }
+    }
+    // rout("f.3");
+    return list;
+}
+
+
+CONNECT_RRT::Tree_t CONNECT_RRT::trim_tree(Tree_t RRTtree,OBSTACLE_GRID_MAP &obstaclesMap){
+
+    
+    int *change_of_tree_index = new int[RRTtree.size()]();
+
+    std::vector<int> output_list;
+    // rout("trim 1");
+    for (int i=0;i<RRTtree.size();i++){
+        if(i!=RRTtree.get_root_index()&&RRTtree[i].father_index>-1){
+            if(!check_if_path_ok(RRTtree[i],RRTtree[RRTtree[i].father_index],obstaclesMap)){
+                std::vector<int> tmp_list;
+                bool *finded_mask = new bool[RRTtree.size()]();
+                tmp_list=find_all_son_index(RRTtree,i,tmp_list,finded_mask);
+                rout("tmp_list_size %d",tmp_list.size());
+                delete [] finded_mask;
+                if(!tmp_list.empty()) {
+                    output_list.insert(output_list.end(),tmp_list.begin(),tmp_list.end());//列表合并
+                    sort(output_list.begin(),output_list.end());//列表排序
+                    output_list.erase(unique(output_list.begin(),output_list.end()),output_list.end());//列表去重，去重前必须排序
+                }else{
+                    // rout("empty List");
+                }
+            }
+        }        
+    }
+    // rout("trim 2");
+    int tmp_value=0;
+
+    for (uint32_t i =0;i<output_list.size();i++){  //确定更新后的索引
+        // rout("output_list:%d",output_list[i]);
+        for(int j=0;j<RRTtree.size();j++){
+            if(output_list[i]<RRTtree[j].father_index){
+                change_of_tree_index[j]-=1;
+                // rout("%d %d",j,change_of_tree_index[j]);
+            }
+        }
+        if(output_list[i]<RRTtree.get_root_index()){
+             tmp_value--;
+        }
+        rout("%s tmp_value%d   %d  %d",RRTtree.name.c_str(),output_list[i],tmp_value,RRTtree.get_root_index());
+    }
+
+ 
+    rout("current root index %d",RRTtree.get_root_index());
+    RRTtree.set_root_index(RRTtree.get_root_index()+tmp_value);
+    for (int i=0;i<RRTtree.size();i++){  //更新所有的索引到新的索引上
+        if(change_of_tree_index[i]!=0){
+            RRTtree[i].father_index+=change_of_tree_index[i];
+        }
+    }
+    rout("new root index %d",RRTtree.get_root_index());
+
+    // rout("trim 4");
+    
+    for(uint32_t i = 0;i<output_list.size();i++){//删除指定位置元素;
+        std::vector<TreeNode_t>::iterator it = RRTtree.begin()+output_list[i]-i; 
+        RRTtree.erase(it);    
+    }
+    for (uint32_t i=0;i<RRTtree.size();i++){  //更新所有的索引到新的索引上
+        RRTtree[i].index=i;
+        rout("RRTtree[i].index=%d",RRTtree[i].index);
+    }
+    // rout("trim 5");
+
+    delete []change_of_tree_index; //释放临时变量
+    return RRTtree; //返回
+}
+
+CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan_online(
+                                 copter_local_pos_att_t att_pos_copy      
+                                ,OBSTACLE_GRID_MAP &obstaclesMap
+                                ,FLY_PLAN_T &current_route
+                                ,cv::Mat &Path
+                                ,std::vector<Tree_t> &get_trees
+                                ,std::vector<WPS> &save_route
+                                ){
+    auto attpos = att_pos_copy;
+    cv::Mat tmp(obstaclesMap.map.rows(),obstaclesMap.map.cols(),CV_8UC1);
+    CALC_TIME_LOG log;
+    if(_p->show_path_map){
+        cv::eigen2cv(obstaclesMap.map,tmp);
+        tmp.convertTo(tmp,CV_8UC3);
+    }
+    Mat img =tmp;
+    if(_p->show_path_map){
+        cvtColor(tmp, img, CV_GRAY2BGR);
+    }
+	TreeNode_t start(WP(attpos.pos_x,attpos.pos_y,attpos.pos_z),0,-1,-1);
+	TreeNode_t target(WP(current_route._target_Pos.x,current_route._target_Pos.y,current_route._target_Pos.z),0,-1,-1);
+
+    if(_p->show_path_map){
+        lineimg(img,start,target,obstaclesMap,Scalar(255, 90, 90));
+        circleimg(img,start,obstaclesMap,Scalar(0,255,0));
+        circleimg(img,WP(attpos.pos_x,attpos.pos_y,0),obstaclesMap,Scalar(0,255,255));
+        circleimg(img,target,obstaclesMap,Scalar(0,0,255));
+    }
+    
+    log<<start.x<<start.y<<target.x<<target.y;
+
+	rout("\r\n RRT Mission Started.\r\nstart x:%f,y:%f, end x:%f,y:%f.",start.x,start.y,target.x,target.y);
+
+	Tree_t RRTtree_1(start,"start"),RRTtree_2(target,"target");
+
+	set_direct();
+	bool find_path=false;	int iter=0;    auto grid_size = obstaclesMap.grid_size;
+    std::stringstream ss;
+    if(_p->show_path_map)
+    {
+        cv::Mat tmp;
+        cv::flip(img,tmp,0);
+        cv::imshow("Path_map",tmp);
+    }
+ 
+    uint64_t iter_cnt=0;
+    std::stringstream start_time;
+    static Tree_t RRTtree_1_Last,RRTtree_2_Last;
+    ros::Time start_time_mark = ros::Time::now();
+    start_time << start_time_mark.toSec();
+
+    //计算树和起始树和终点树的距离
+    if(RRTtree_1_Last.size()!=0&&RRTtree_2_Last.size()!=0) {
+        double s_2_t_1 = calc_dist(get_nearst_point(RRTtree_1_Last,start),start);
+        double s_2_t_2 = calc_dist(get_nearst_point(RRTtree_2_Last,start),start);
+        if(s_2_t_1<s_2_t_2)
+        {   
+            RRTtree_1=rrt_to_point(RRTtree_1_Last,start,obstaclesMap);
+            int idx_1 = get_nearst_point_index(RRTtree_1,start);
+            RRTtree_1.reorder(idx_1);//重排列
+            rout("tree1 reorder to %d",idx_1);
+            RRTtree_1=trim_tree(RRTtree_1,obstaclesMap);//修剪
+
+
+            RRTtree_2=rrt_to_point(RRTtree_2_Last,target,obstaclesMap);
+            int idx_2 = get_nearst_point_index(RRTtree_2,target);
+            RRTtree_2.reorder(idx_2);//
+            RRTtree_2=trim_tree(RRTtree_2,obstaclesMap);
+
+            // rout("tree2 reorder to %d",idx_2);
+            // rout("%d %d",RRTtree_1.size(),RRTtree_2.size());
+        
+        }
+        //距离树一较远
+        if(s_2_t_1>s_2_t_2){//ro
+            rout("far tree1 ");
+            RRTtree_2=rrt_to_point(RRTtree_2_Last,target,obstaclesMap);
+            int idx_2 = get_nearst_point_index(RRTtree_2,target);
+            RRTtree_2.reorder(idx_2);//
+            RRTtree_2=trim_tree(RRTtree_2,obstaclesMap);
+
+        }
+    }
+    
+
+	while(iter<_p->rrt_one_step_max_iterations)
+	{
+        find_path=false;
+        if(ros::Time::now()-start_time_mark>ros::Duration(2)){
+            log.end();
+            return RRT_STATE_C::RRT_FAILED;
+            break;
+        }
+        iter_cnt++;
+		TreeNode_t newPoint_Tree_1,newPoint_Tree_2;
+		if(check_if_rrt_status()){
+			get_sampling_points(newPoint_Tree_1,start,target);
+			set_direct();
+		}
+		else{
+            if(RRTtree_1.name=="start"){
+                newPoint_Tree_1 = TreeNode_t(target);
+            }
+            else{
+                newPoint_Tree_1 = TreeNode_t(start); 
+            }
+		}
+
+        bool RRT1_Extend_Success=true;
+	    TreeNode_t cloest_point = get_nearst_point(RRTtree_1,newPoint_Tree_1,target);
+		double rad = calc_grow_theta(cloest_point,newPoint_Tree_1);
+
+		newPoint_Tree_1 = extend_a_step(cloest_point,_p->rrt_step_size,rad);
+		if(!check_if_path_ok(cloest_point,newPoint_Tree_1,obstaclesMap)){
+			iter++;
+			set_rrt();
+            RRT1_Extend_Success=false;
+			continue;
+		}else{
+            RRT1_Extend_Success=true;
+        }
+
+        newPoint_Tree_2=newPoint_Tree_1;
+        bool RRT2_Extend_Success=false;
+        if(_p->show_path_map)
+            tapimg(img,target,obstaclesMap);
+
+        if (RRT1_Extend_Success==true){//如果第一个点路径检查通过，那么尝试添加第二个点
+
+            if(check_if_new_point_too_close_to_other_points(RRTtree_1,newPoint_Tree_1,_p->rrt_too_close_size,cloest_point.index)){
+                iter++;
+                continue; //如果第一个点就没有添加成功，那就重新采样
+            }
+
+            RRTtree_1(cloest_point,newPoint_Tree_1);//树1添加第一个点
+            TreeNode_t cloest_point_in_tree_2 = get_nearst_point(RRTtree_2,newPoint_Tree_1);//检测是否相连
+            if(check_if_reached_goal(cloest_point_in_tree_2,newPoint_Tree_1,_p->rrt_reach_goal_thresh)){
+        
+                if(check_if_path_ok(cloest_point_in_tree_2,newPoint_Tree_1,obstaclesMap)){
+                    RRTtree_1.set_path_end(RRTtree_1.size()-1);
+                    RRTtree_2.set_path_end(cloest_point_in_tree_2);
+                    find_path=true;
+                    break;
+                }
+            }
+            rrt_new_point_vis->push_to_rviz(WPS(newPoint_Tree_1));
+
+            if(_p->show_path_map){
+                tapimg(img,newPoint_Tree_1,obstaclesMap);
+            }
+            bool tree_2_keep_add = true;
+
+            auto tree_2_target = newPoint_Tree_2;
+
+            bool get_closest_point_one_time =false;
+            TreeNode_t cloest_point ;
+            while(tree_2_keep_add){
+                if(!get_closest_point_one_time){
+                    cloest_point = get_nearst_point(RRTtree_2,newPoint_Tree_2,target);
+                    get_closest_point_one_time=true;
+                }
+                double rad = calc_grow_theta(cloest_point,tree_2_target);
+
+                newPoint_Tree_2 = extend_a_step(cloest_point,_p->rrt_step_size,rad);
+
+                if(!check_if_path_ok(cloest_point,newPoint_Tree_1,obstaclesMap)){
+                    iter++;RRT2_Extend_Success=false;//不直接跳出,用标志位是为了让第一个点能够正常添加
+                    tree_2_keep_add=false;
+                }else{
+                    RRT2_Extend_Success=true;
+                }
+                if (RRT2_Extend_Success==true){ //如果第二树节点障碍检测通过，那么检测是否过近
+                    if(check_if_new_point_too_close_to_other_points(RRTtree_2,newPoint_Tree_2,_p->rrt_too_close_size,cloest_point.index)){
+                        RRT2_Extend_Success=false;
+                        tree_2_keep_add=false;
+                    }else{//如果没有过近，那么添加新的树二点
+                        RRTtree_2(cloest_point,newPoint_Tree_2);
+                        rrt_new_point_vis->push_to_rviz(WPS(newPoint_Tree_1));
+                        if(_p->show_path_map){
+                            tapimg(img,newPoint_Tree_2,obstaclesMap);
+                        }   
+                        RRT2_Extend_Success=true;
+                        tree_2_keep_add=false;
+                        TreeNode_t cloest_point_in_tree_1 = get_nearst_point(RRTtree_1,newPoint_Tree_2);
+                        //判断两棵树是否相连了
+                        if(check_if_reached_goal(cloest_point_in_tree_1,newPoint_Tree_2,_p->rrt_reach_goal_thresh)){
+                            // rout("%f %f",cloest_point_in_tree_1.x,cloest_point_in_tree_1.y);
+                            if(check_if_path_ok(cloest_point_in_tree_1,newPoint_Tree_2,obstaclesMap)){
+                                RRTtree_1.set_path_end(cloest_point_in_tree_1);
+                                RRTtree_2.set_path_end(RRTtree_2.size()-1);
+                                tree_2_keep_add=false;
+                                find_path=true;
+                                break;
+                            }
+                        }  
+                        cloest_point= newPoint_Tree_2;
+                    }
+
+                }
+            }
+            if(find_path) break;
+        }       
+        if(RRTtree_1.size()>=RRTtree_2.size()){
+            RRTtree_1.swap(RRTtree_2);
+        }
+		iter=0;
+	}
+    rrt_new_point_vis->clear();
+    std::stringstream end_time ;
+    end_time << ros::Time::now().toSec();
+
+    if(RRTtree_1.name!="start"){ //保证tree1是起始树 tree2 是终点树
+        RRTtree_1.swap(RRTtree_2);
+        // rout("%s %s",RRTtree_1.name.c_str(),RRTtree_2.name.c_str());
+    }
+    rrt_vis->push_to_rviz(RRTtree_1);
+    rrt_vis2->push_to_rviz(RRTtree_2);
+    rout("RRT start time %s,end time:%s.Iteration :%d",start_time.str().c_str(),end_time.str().c_str(),iter_cnt);
+    rout("RRT1 root %d,end :%d,size %d",RRTtree_1.get_root_index(),RRTtree_1.path_end_idx,RRTtree_1.size());
+    rout("RRT2 root %d,end :%d,size %d",RRTtree_2.get_root_index(),RRTtree_2.path_end_idx,RRTtree_2.size());
+
+
+    RRTtree_1_Last = RRTtree_1;
+    RRTtree_2_Last = RRTtree_2;
+    log<<start_time.str()<<end_time.str()<<iter_cnt;
+
+    log<<find_path;
+
+    get_trees.push_back(RRTtree_1);
+    get_trees.push_back(RRTtree_2);
+
+	if(find_path==true){
+
+        std::stringstream ss;
+
+        ss<<"finished size"<<RRTtree_1.size()+RRTtree_2.size()<<"\r\n";
+        log<<RRTtree_1.size()<<RRTtree_2.size();
+
+        WPS path=combine_two_rrt_path(RRTtree_1,RRTtree_2);
+        
+        rrt_path_vis->push_to_rviz(path);
+
+		auto simplified_path = path;
+        {
+            ss<<"total finished size"<<path.size()<<"\r\n";
+            log<<path.size();
+        }
+		simplify_rrt_trees(simplified_path,obstaclesMap);
+        simplified_vis->push_to_rviz(simplified_path);
+        save_route.push_back(simplified_path);
+        save_route.push_back(path);
+
+        {
+            log<<simplified_path.size();
+            ss<<"Path simplified to:"<<simplified_path.size();
+		    rout("%s",ss.str().c_str());
+        }
+        WPS ret_wps=simplified_path;
+        
+        if(_p->minimumsnap_en)
+        if(simplified_path.size()>2){
+            double start_time = ros::Time::now().toSec();
+            switch(minimumsnap_calc(attpos
+                                        ,simplified_path
+                                        ,ret_wps))
+            {
+                case RRT_STATE_C::MINIMUMSNAP_SUCCESS:
+                    break;
+                case RRT_STATE_C::MINIMUMSNAP_FAILED:
+                    return RRT_STATE_C::MINIMUMSNAP_FAILED;
+                case RRT_STATE_C::MINIMUMSNAP_SRV_TIME_OUT_FAILED:
+                    return RRT_STATE_C::MINIMUMSNAP_SRV_TIME_OUT_FAILED;
+            }
+            double end_time = ros::Time::now().toSec();
+            rout("MinimumSnap start time: %f,end time:%f.",start_time,end_time);
+            log<<start_time<<end_time;
+        }else{
+            ret_wps.clear();
+            ret_wps.push_back(start);
+            for (int i = 0 ; i <40;i++){
+                ret_wps.push_back(WP(start.x+i*(target.x-start.x)/40.,start.y+i*(target.y-start.y)/40.,start.z+i*(target.z-start.z)/40.));
+            }
+            ret_wps.push_back(target);
+        }
+        current_route.wps=ret_wps;
+        if(_p->show_path_map){
+            for(int i=0;i<ret_wps.size()-1;i++){
+                lineimg(img,ret_wps[i],ret_wps[i+1],obstaclesMap);
+            }
+        }
+        route_vis->push_to_rviz(ret_wps);
+
+        log.end();
+	}
+	else{
+        rout("no found");
+        log.end();
+	    return RRT_STATE_C::RRT_FAILED;
+	}
+    if(_p->show_path_map){
+        cv::flip(img,img,0);
+        Path = img;
+        cv::imshow("Path_map",img);
+        cv::waitKey(1);
+    }
+	return RRT_STATE_C::FOUND_AVALIABLE_PATH;
+}
+
+
+
 void CONNECT_RRT::set_rrt(){
     grow_status=GROW_STATUS::rrt;
 }
@@ -661,7 +1114,7 @@ void CONNECT_RRT::get_sampling_points(TreeNode_t &new_point,const TreeNode_t sta
     double rand_num_x = (*rd)()%100000000/100000000.;
     double rand_num_y = (*rd)()%100000000/100000000.;
 
-    double s =20;
+    double s =10;
     double xR=end.x>start.x?end.x:start.x;
     double xL=end.x>start.x?start.x:end.x;
     double yR=end.y>start.y?end.y:start.y;
@@ -703,12 +1156,20 @@ CONNECT_RRT::CONNECT_RRT(std::random_device *_rd_,std::mutex *_mtx_,Parameters *
     route_vis->set_attribue(0.5,0,0.8);
     rrt_vis = rrt_vis->init("rrt","marker","point","refresh");
     rrt_vis2 = rrt_vis2->init("rrt2","marker","point","refresh");
-    rrt_vis->set_attribue(0.8,1,1);
-    rrt_vis2->set_attribue(0.2,1,1);
+    rrt_vis->set_attribue(1,0.8,0);
+    rrt_vis2->set_attribue(139./255.,69./255.,19./255.);
     land_mark_vis = land_mark_vis->init("land_mark","marker","cylinder","add");
     land_mark_vis->set_attribue(1,1,1,1,0.2,0.2,5);
     check_radius_vis = check_radius_vis->init("check_radius_vis","marker","cylinder","refresh");
     check_radius_vis->set_attribue(0.5,0.5,0.5,0.2,8,8,3);
+
+    simplified_vis=simplified_vis->init("simplified_path","marker","line_strip","refresh");
+    rrt_path_vis=rrt_path_vis->init("rrt_path","marker","line_strip","refresh");
+    simplified_vis->set_attribue(0,0,1,0.5);
+    rrt_path_vis->set_attribue(255./255.,69./255.,19./255.,0.8);
+
+    rrt_new_point_vis=rrt_new_point_vis->init("rrt_new_point_vis","marker","point","refresh");
+    rrt_new_point_vis->set_attribue(1,1,1,1,3,3,3);
 }
 
 
@@ -740,6 +1201,7 @@ void CONNECT_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
         std::stringstream time;
         std::time_t today_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         time<< std::ctime(&today_time)<<"_"<<(*rd)()%100;
+        auto map_copy = GridMap.Gridmap.map;
         if(_p->record_to_file)
         {
             std::ofstream outputfile;
@@ -751,9 +1213,9 @@ void CONNECT_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
             file_path<<"/originMat.csv";
             outputfile.open(file_path.str().c_str());
             outputfile<<GridMap.Gridmap.center_x<<";"<<GridMap.Gridmap.center_y<<";"<<GridMap.Gridmap.grid_size<<";"<<std::endl;
-            for(int j =0;j<GridMap.Gridmap.map.cols();j++){
-                for(int i=0;i<GridMap.Gridmap.map.rows();i++){
-                    outputfile<<GridMap.Gridmap.map(i,j)<<";";
+            for(int j =0;j<map_copy.cols();j++){
+                for(int i=0;i<map_copy.rows();i++){
+                    outputfile<<map_copy(i,j)<<";";
                 }
                 outputfile<<std::endl;
             }
@@ -795,9 +1257,8 @@ void CONNECT_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
         }
         // 如果有新地图，那就把当前的路径放进去检查一下有没有碰了,如果有的话先停下来,如果已经是二次尝试状态，那就跳过这个过程
         bool current_route_ocllision = false;
-        int ocllision_index =-1;
         copter_local_pos_att_t att_pos_copy = _mavlink->get_pose();
-        check_radius_vis->push_to_rviz(WPS(WP(att_pos_copy.pos_x,att_pos_copy.pos_y,att_pos_copy.pos_z)));
+        // check_radius_vis->push_to_rviz(WPS(WP(att_pos_copy.pos_x,att_pos_copy.pos_y,att_pos_copy.pos_z)));
         if(RRT_Calc_State != RRT_Base::RRT_STATE_C::TRY_AGAIN)
         {
             // rout("current_route.size()%d",current_route.size());
@@ -816,7 +1277,6 @@ void CONNECT_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
                             _unity->copter_state = UNIVERSAL_STATE::COPTER_STATE::STATE_LOITER;
                             mtx->unlock();
                             current_route_ocllision = true; 
-                            ocllision_index=i;
                         }
                         break;
                     }
@@ -824,9 +1284,10 @@ void CONNECT_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
                 if(!current_route_ocllision) continue;
             }	
         }
-
+        
         cv::Mat PathMat;
         std::vector<Tree_t> get_trees;
+        std::vector<WPS> save_route;
         cv::Mat element2 = cv::getStructuringElement(cv::MORPH_RECT, cv::Size((int)_p->dilate_first_x, (int)_p->dilate_first_y));
         dilate(img, img, element2);	 
         obstaclesMap.map.setZero();	
@@ -836,9 +1297,9 @@ void CONNECT_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
         static int RRT_Faided_Cnt = 0;
         rout("Route Planning.");
 
-        land_mark_vis->push_to_rviz(WPS(WP(att_pos_copy.pos_x,att_pos_copy.pos_y,att_pos_copy.pos_z)));
+        // land_mark_vis->push_to_rviz(WPS(WP(att_pos_copy.pos_x,att_pos_copy.pos_y,att_pos_copy.pos_z)));
 
-        switch(plan(att_pos_copy,obstaclesMap,current_route,PathMat,get_trees))
+        switch(plan_online(att_pos_copy,obstaclesMap,current_route,PathMat,get_trees,save_route))
         {
             case RRT_STATE_C::FOUND_AVALIABLE_PATH:
                 mtx->lock();
@@ -878,37 +1339,72 @@ void CONNECT_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
             break;
         }
 
-        if(_p->record_to_file)
         {
-            if(PathMat.empty()){rout("empty .!");}
-            std::stringstream file_path;
-            file_path<<"/home/az/rcc/"<<init_time.str()<<"/"<<time.str()<<"/PathMapMat_Flipped.png";
-            // cv::imwrite(file_path.str().c_str(),PathMat);
-            file_path.str("");
-            file_path<<"/home/az/rcc/"<<init_time.str()<<"/"<<time.str()<<"/Path.csv";
-            std::ofstream outputfile;
-            outputfile.open(file_path.str().c_str());
-            for(int j =0;j<current_route.wps.size();j++){
-                outputfile<<current_route.wps[j].x<<";";
-                outputfile<<current_route.wps[j].y<<";";
-                outputfile<<current_route.wps[j].z<<";";
-                outputfile<<std::endl;}
-
-            for(int tree_idx=0;tree_idx<get_trees.size();tree_idx++){
+            std::vector<WPS> save_route_copy=save_route;
+            if(_p->record_to_file)
+            {
+                if(PathMat.empty()){rout("empty .!");}
+                std::stringstream file_path;
+                file_path<<"/home/az/rcc/"<<init_time.str()<<"/"<<time.str()<<"/PathMapMat_Flipped.png";
+                // cv::imwrite(file_path.str().c_str(),PathMat);
                 file_path.str("");
-                file_path<<"/home/az/rcc/"<<init_time.str()<<"/"<<time.str()<<"/RRT_"<<tree_idx<<"_Path.csv";
+                file_path<<"/home/az/rcc/"<<init_time.str()<<"/"<<time.str()<<"/Path.csv";
                 std::ofstream outputfile;
                 outputfile.open(file_path.str().c_str());
-                for(int j =0;j<get_trees[tree_idx].size();j++){
-                    outputfile<<get_trees[tree_idx][j].index<<";";
-                    outputfile<<get_trees[tree_idx][j].x<<";";
-                    outputfile<<get_trees[tree_idx][j].y<<";";
-                    outputfile<<get_trees[tree_idx][j].z<<";";
-                    outputfile<<get_trees[tree_idx][j].father_index<<";";
+                for(int j =0;j<current_route.wps.size();j++){
+                    outputfile<<current_route.wps[j].x<<";";
+                    outputfile<<current_route.wps[j].y<<";";
+                    outputfile<<current_route.wps[j].z<<";";
                     outputfile<<std::endl;
                 }
-                rout("RRT_%d Recorded,size%d,file_path:%s",tree_idx,get_trees[tree_idx].size(),file_path.str().c_str());
-                outputfile.close();
+
+                for(int tree_idx=0;tree_idx<get_trees.size();tree_idx++){
+                    file_path.str("");
+                    file_path<<"/home/az/rcc/"<<init_time.str()<<"/"<<time.str()<<"/RRT_"<<tree_idx<<"_Path.csv";
+                    std::ofstream outputfile;
+                    outputfile.open(file_path.str().c_str());
+                    for(int j =0;j<get_trees[tree_idx].size();j++){
+                        outputfile<<get_trees[tree_idx][j].index<<";";
+                        outputfile<<get_trees[tree_idx][j].x<<";";
+                        outputfile<<get_trees[tree_idx][j].y<<";";
+                        outputfile<<get_trees[tree_idx][j].z<<";";
+                        outputfile<<get_trees[tree_idx][j].father_index<<";";
+                        outputfile<<std::endl;
+                    }
+                    rout("RRT_%d Recorded,size%d,file_path:%s",tree_idx,get_trees[tree_idx].size(),file_path.str().c_str());
+                    outputfile.close();
+                }
+
+                for(int i = 0 ; i<save_route.size();i++){
+                    if(i==0){
+                        file_path.str("");
+                        file_path<<"/home/az/rcc/"<<init_time.str()<<"/"<<time.str()<<"/simplified_Path.csv";
+                        std::ofstream outputfile;
+                        outputfile.open(file_path.str().c_str());
+                        for(int j =0;j<save_route[0].size();j++){
+                            outputfile<<save_route[0][j].x<<";";
+                            outputfile<<save_route[0][j].y<<";";
+                            outputfile<<save_route[0][j].z<<";";
+                            outputfile<<std::endl;
+                        }
+                        rout("simplified_path Recorded,size%d,file_path:%s",save_route[0].size(),file_path.str().c_str());
+                        outputfile.close();
+                    }
+                    if(i==1){
+                        file_path.str("");
+                        file_path<<"/home/az/rcc/"<<init_time.str()<<"/"<<time.str()<<"/rrt_Path.csv";
+                        std::ofstream outputfile;
+                        outputfile.open(file_path.str().c_str());
+                        for(int j =0;j<save_route[1].size();j++){
+                            outputfile<<save_route[1][j].x<<";";
+                            outputfile<<save_route[1][j].y<<";"; 
+                            outputfile<<save_route[1][j].z<<";";
+                            outputfile<<std::endl;
+                        }
+                        rout("rrt_path Recorded,size%d,file_path:%s",save_route[1].size(),file_path.str().c_str());
+                        outputfile.close();
+                    }
+                }
             }
         }
     }
