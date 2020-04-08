@@ -20,4 +20,9 @@ RouteTracker is based on pure pursuit.
 Visualization in rviz has been wrapped into some simple steps by template class.So it will be more convenient to show your hard work.
 More visualiztion wrapper of rviz  is under working . Also ,the purpose of this is to simplify work not to heavy study content.
 
+无人机避障演示效果
 
+https://www.bilibili.com/video/BV1C7411f75E/
+
+依赖于ROS、MAVROS、ROS_PCL、OPENCV2、OCTOMAP库等
+目前动力学优化部分代码未上传至gitee，如无需要删去这部分代码，即可进行避障飞行。
