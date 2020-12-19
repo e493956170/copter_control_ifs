@@ -88,14 +88,16 @@ int main (int argc,char **argv)
 			}
 
 		}
+		file_path = file_path.substr(0,file_path.find_last_of("/"));
+		file_path = file_path + "/settings/config.txt";
 	}
-	file_path = file_path.substr(0,file_path.find_last_of("/"));
-	file_path = file_path + "/settings/config.txt";
+
 	printf("配置文件路径为：%s\r\n",file_path.c_str());
 	fstream _file;
 	_file.open(file_path, ios::in);
 	if(!_file){
-		cout<<"<"<<file_path<<"> didn't not exist!"<<endl;
+		
+		printf("<%s> didn't not exist!\r\n",file_path.c_str());
 		return 0;
 	}
 	Parameters parameters(file_path);
