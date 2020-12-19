@@ -22,13 +22,15 @@
 #include <mutex>
 #include <thread>
 #include <functional>
+#include "stdlib.h"
+#include<boost/algorithm/string.hpp>
 
 std::mutex mtx;
 std::random_device rd;
 
 UNIVERSAL_STATE unity_state;
 #define rout ROS_INFO
-
+#define PROJECT_NAME "my_catkin_ws"
 
 void spinWrapper(){
 	std::stringstream ss;ss<<std::this_thread::get_id();
@@ -63,14 +65,33 @@ int main (int argc,char **argv)
 {
 	ros::init (argc,argv,"RCC");
 
+
+//加载配置文件
 	string file_path;
 	if(argc >2){
 		string marker=argv[1];
 		if(marker=="-c")
 			file_path=argv[2];
 	}else{
-		file_path = "/home/az/config.txt";
+		file_path = string(getenv("ROS_PACKAGE_PATH"));
+		std::vector<std::string> sv;
+		boost::split(sv,file_path,boost::is_any_of(":"),boost::token_compress_on);
+		for (int i=0;i<sv.size();i++){
+			std::vector<string> tmp;
+			boost::split(tmp,sv[i],boost::is_any_of("/"),boost::token_compress_on);
+			if (tmp[tmp.size()-2]==string(PROJECT_NAME)){
+				file_path = sv[i];
+				break;
+			}else{
+				file_path="未找到路径";
+				printf("配置文件载入失败：%s\r\n",file_path);
+			}
+
+		}
 	}
+	file_path = file_path.substr(0,file_path.find_last_of("/"));
+	file_path = file_path + "/settings/config.txt";
+	printf("配置文件路径为：%s\r\n",file_path.c_str());
 	fstream _file;
 	_file.open(file_path, ios::in);
 	if(!_file){

@@ -8,7 +8,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+import os
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -196,7 +196,14 @@ class Ui_MainWindow(object):
         self.label_4.setText(_translate("MainWindow", "参数"))
         self.pushButton_2.setText(_translate("MainWindow", "关闭仿真"))
         self.pushButton_4.setText(_translate("MainWindow", "载入参数"))
-        self.lineEdit.setText(_translate("MainWindow", "/home/az/config.txt"))
+        config_file_paths = os.getenv("ROS_PACKAGE_PATH").split(":")
+        for idx,path in enumerate(config_file_paths):
+            if path.split("/")[-2]=="my_catkin_ws":
+                config_file_path = os.path.dirname(path)
+                break
+            else:
+                config_file_path = "请自行输入ROS工作文件夹地址"
+        self.lineEdit.setText(_translate("MainWindow", config_file_path+"/settings/config.txt"))
         self.pushButton.setText(_translate("MainWindow", "启动仿真"))
         self.label_2.setText(_translate("MainWindow", "状态：已启动"))
         self.label_6.setText(_translate("MainWindow", "备注"))

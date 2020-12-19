@@ -1,0 +1,72 @@
+----------basic_info----------
+config_title  =  UAV_TEST_PLATFORM_SOFTWARE
+author  =  ZhengZi
+config_version  =  0.1
+----------uav_cordinate----------
+lidar_position_x  =  0
+lidar_position_y  =  0
+lidar_position_z  =  0
+lidar_position_r  =  0
+lidar_position_p  =  0
+lidar_position_y  =  0
+----------debug_function----------
+show_rt_map  =  0
+show_path_map  =  0
+show_point_cloud  =  0
+record_to_file  =  1
+no_move  =  0  #StopMoving!
+sim_mode  =  0  #Todo.
+----------minimumsnap----------
+minimumsnap_en  =  1  #EnableMinimumsnap.
+----------target_pos----------
+target_pos_x  =  45  #目标位置
+target_pos_y  =  0.0
+target_pos_z  =  3.0
+----------Path_pursuit----------
+Path_Pursuit_Method  =  Pure_Pursuit
+Pure_Pursuit_K  =  0.5
+Pure_Pursuit_LFC  =  2
+----------pid_value----------
+max_fly_speed  =  1.5
+max_yaw_rad  =  5
+Yaw_Kp  =  0.5
+Yaw_I_Max  =  1
+Yaw_Ki  =  0
+Yaw_Kd  =  0.2
+V_Kp  =  0.9
+V_I_Max  =  1
+V_Ki  =  0.001
+V_Kd  =  0.4
+A_Kp  =  1.0
+A_Ki  =  1
+A_I_Max  =  1
+A_Max  =  1
+A_Kd  =  0
+acc_control  =  0
+Az_Kp  =  1
+Az_Ki  =  0
+Az_I_Max  =  0
+Az_Kd  =  0
+Az_Max  =  1
+Vz_Kp  =  0.5
+Vz_Ki  =  0.01
+Vz_I_Max  =  1
+Vz_Kd  =  0.2
+max_z_speed  =  1
+----------pm_size----------
+map_size_x  =  100  #unit:m,mapsizewillautoresize,sothisvaluedoesn'tmatter.
+map_size_y  =  100  #unit:m
+map_grid_size  =  0.2  #unit:m
+map_occupied_thresh  =  0.8  #unit:none
+map_expand_size  =  5  #unit:grid,thisvalueshouldbe>1
+----------dilation_settings----------
+dilate_first_x  =  11  #概率地图膨胀设置
+dilate_first_y  =  11
+dilate_second_x  =  7
+dilate_second_y  =  7
+----------rrt_settings----------
+rrt_one_step_max_iterations  =  1000
+rrt_step_size  =  0.4
+rrt_too_close_size  =  0.1
+rrt_reach_goal_thresh  =  1  #当两RRT树距离小于XX时
+rrt_route_refresh_thresh  =  8.0  #当前航线如果发生膨胀，若膨胀处距离大于该阈值，则不做处理
