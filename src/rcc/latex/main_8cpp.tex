@@ -1,0 +1,125 @@
+\hypertarget{main_8cpp}{}\section{src/main.cpp 文件参考}
+\label{main_8cpp}\index{src/main.\+cpp@{src/main.\+cpp}}
+{\ttfamily \#include $<$ros/ros.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}math.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}route\+\_\+tinker/route\+\_\+tinker.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}route\+\_\+tracker/route\+\_\+tracker.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}route\+\_\+tracker/wp\+\_\+manager.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}uav\+\_\+link\+\_\+ifs/uavcontrol\+\_\+interface.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}uav\+\_\+link\+\_\+ifs/mavlink\+\_\+interface.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}base/cfg.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}base/base\+Method.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}base/base\+Type.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}flight\+\_\+task/flow\+\_\+attacher.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}sensor/lidar\+\_\+data\+\_\+process.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$minimumsnap\+\_\+route/service.\+h$>$}\newline
+{\ttfamily \#include $<$opencv2/opencv.\+hpp$>$}\newline
+{\ttfamily \#include $<$mutex$>$}\newline
+{\ttfamily \#include $<$thread$>$}\newline
+{\ttfamily \#include $<$functional$>$}\newline
+main.\+cpp 的引用(Include)关系图\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{main_8cpp__incl}
+\end{center}
+\end{figure}
+\subsection*{宏定义}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{main_8cpp_a5ac4b17db930392c756a747dc7f98e5f}{rout}~R\+O\+S\+\_\+\+I\+N\+FO
+\end{DoxyCompactItemize}
+\subsection*{函数}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{main_8cpp_abef969771cc38c5bef644aee2814c30f}{spin\+Wrapper} ()
+\item 
+void \hyperlink{main_8cpp_a357c3c819884a88856b9af19f7056691}{\+\_\+copter\+\_\+control\+\_\+thread\+\_\+\+Wrapper} (P\+I\+D\+\_\+2\+D\+\_\+control $\ast$p, positon\+\_\+\+Local\+\_\+\+N\+E\+D\+\_\+t \&input\+\_\+pos\+\_\+flow)
+\item 
+void \hyperlink{main_8cpp_a12ac40f811eae269ff4a59042875cb71}{\+\_\+rrt\+\_\+thread\+\_\+\+Wrapper} (C\+O\+N\+N\+E\+C\+T\+\_\+\+R\+RT $\ast$p, P\+R\+O\+B\+A\+B\+I\+L\+I\+S\+T\+I\+C\+\_\+\+M\+AP \&Grid\+Map, F\+L\+Y\+\_\+\+P\+L\+A\+N\+\_\+T \&current\+\_\+route)
+\item 
+void \hyperlink{main_8cpp_a2a4c4a53067044ace13905beea7b2167}{\+\_\+waypoints\+Mangaer\+Thread\+\_\+\+Wrapper} (W\+P\+\_\+\+U\+P\+D\+A\+T\+ER $\ast$p, F\+L\+Y\+\_\+\+P\+L\+A\+N\+\_\+T \&fly\+\_\+plan, positon\+\_\+\+Local\+\_\+\+N\+E\+D\+\_\+t \&target\+\_\+pos\+\_\+flow)
+\item 
+void \hyperlink{main_8cpp_aef80cffe0085e212ea7091537bd09d5b}{system\+\_\+init} (Parameters $\ast$\+\_\+p\+\_\+, U\+N\+I\+V\+E\+R\+S\+A\+L\+\_\+\+S\+T\+A\+TE $\ast$\+\_\+unity\+\_\+, U\+A\+V\+C\+O\+N\+T\+R\+O\+L\+\_\+\+I\+N\+T\+E\+R\+F\+A\+CE $\ast$\+\_\+uav\+\_\+ifs\+\_\+, positon\+\_\+\+Local\+\_\+\+N\+E\+D\+\_\+t $\ast$target\+\_\+pos\+\_\+flow, F\+L\+Y\+\_\+\+P\+L\+A\+N\+\_\+T $\ast$\+\_\+sub\+\_\+fly\+\_\+wps\+\_\+)
+\item 
+int \hyperlink{main_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}{main} (int argc, char $\ast$$\ast$argv)
+\end{DoxyCompactItemize}
+\subsection*{变量}
+\begin{DoxyCompactItemize}
+\item 
+std\+::mutex \hyperlink{main_8cpp_ad5e0dbd36f0d71fce9b00b7f991b2f38}{mtx}
+\item 
+std\+::random\+\_\+device \hyperlink{main_8cpp_a7071b0092ad8c5b57d6cc40c5f803df5}{rd}
+\item 
+U\+N\+I\+V\+E\+R\+S\+A\+L\+\_\+\+S\+T\+A\+TE \hyperlink{main_8cpp_a2a811a65e867041bcee444e8e66188a9}{unity\+\_\+state}
+\end{DoxyCompactItemize}
+
+
+\subsection{宏定义说明}
+\mbox{\Hypertarget{main_8cpp_a5ac4b17db930392c756a747dc7f98e5f}\label{main_8cpp_a5ac4b17db930392c756a747dc7f98e5f}} 
+\index{main.\+cpp@{main.\+cpp}!rout@{rout}}
+\index{rout@{rout}!main.\+cpp@{main.\+cpp}}
+\subsubsection{\texorpdfstring{rout}{rout}}
+{\footnotesize\ttfamily \#define rout~R\+O\+S\+\_\+\+I\+N\+FO}
+
+
+
+\subsection{函数说明}
+\mbox{\Hypertarget{main_8cpp_a357c3c819884a88856b9af19f7056691}\label{main_8cpp_a357c3c819884a88856b9af19f7056691}} 
+\index{main.\+cpp@{main.\+cpp}!\+\_\+copter\+\_\+control\+\_\+thread\+\_\+\+Wrapper@{\+\_\+copter\+\_\+control\+\_\+thread\+\_\+\+Wrapper}}
+\index{\+\_\+copter\+\_\+control\+\_\+thread\+\_\+\+Wrapper@{\+\_\+copter\+\_\+control\+\_\+thread\+\_\+\+Wrapper}!main.\+cpp@{main.\+cpp}}
+\subsubsection{\texorpdfstring{\+\_\+copter\+\_\+control\+\_\+thread\+\_\+\+Wrapper()}{\_copter\_control\_thread\_Wrapper()}}
+{\footnotesize\ttfamily void \+\_\+copter\+\_\+control\+\_\+thread\+\_\+\+Wrapper (\begin{DoxyParamCaption}\item[{P\+I\+D\+\_\+2\+D\+\_\+control $\ast$}]{p,  }\item[{positon\+\_\+\+Local\+\_\+\+N\+E\+D\+\_\+t \&}]{input\+\_\+pos\+\_\+flow }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8cpp_a12ac40f811eae269ff4a59042875cb71}\label{main_8cpp_a12ac40f811eae269ff4a59042875cb71}} 
+\index{main.\+cpp@{main.\+cpp}!\+\_\+rrt\+\_\+thread\+\_\+\+Wrapper@{\+\_\+rrt\+\_\+thread\+\_\+\+Wrapper}}
+\index{\+\_\+rrt\+\_\+thread\+\_\+\+Wrapper@{\+\_\+rrt\+\_\+thread\+\_\+\+Wrapper}!main.\+cpp@{main.\+cpp}}
+\subsubsection{\texorpdfstring{\+\_\+rrt\+\_\+thread\+\_\+\+Wrapper()}{\_rrt\_thread\_Wrapper()}}
+{\footnotesize\ttfamily void \+\_\+rrt\+\_\+thread\+\_\+\+Wrapper (\begin{DoxyParamCaption}\item[{C\+O\+N\+N\+E\+C\+T\+\_\+\+R\+RT $\ast$}]{p,  }\item[{P\+R\+O\+B\+A\+B\+I\+L\+I\+S\+T\+I\+C\+\_\+\+M\+AP \&}]{Grid\+Map,  }\item[{F\+L\+Y\+\_\+\+P\+L\+A\+N\+\_\+T \&}]{current\+\_\+route }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8cpp_a2a4c4a53067044ace13905beea7b2167}\label{main_8cpp_a2a4c4a53067044ace13905beea7b2167}} 
+\index{main.\+cpp@{main.\+cpp}!\+\_\+waypoints\+Mangaer\+Thread\+\_\+\+Wrapper@{\+\_\+waypoints\+Mangaer\+Thread\+\_\+\+Wrapper}}
+\index{\+\_\+waypoints\+Mangaer\+Thread\+\_\+\+Wrapper@{\+\_\+waypoints\+Mangaer\+Thread\+\_\+\+Wrapper}!main.\+cpp@{main.\+cpp}}
+\subsubsection{\texorpdfstring{\+\_\+waypoints\+Mangaer\+Thread\+\_\+\+Wrapper()}{\_waypointsMangaerThread\_Wrapper()}}
+{\footnotesize\ttfamily void \+\_\+waypoints\+Mangaer\+Thread\+\_\+\+Wrapper (\begin{DoxyParamCaption}\item[{W\+P\+\_\+\+U\+P\+D\+A\+T\+ER $\ast$}]{p,  }\item[{F\+L\+Y\+\_\+\+P\+L\+A\+N\+\_\+T \&}]{fly\+\_\+plan,  }\item[{positon\+\_\+\+Local\+\_\+\+N\+E\+D\+\_\+t \&}]{target\+\_\+pos\+\_\+flow }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}\label{main_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}} 
+\index{main.\+cpp@{main.\+cpp}!main@{main}}
+\index{main@{main}!main.\+cpp@{main.\+cpp}}
+\subsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily int main (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char $\ast$$\ast$}]{argv }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8cpp_abef969771cc38c5bef644aee2814c30f}\label{main_8cpp_abef969771cc38c5bef644aee2814c30f}} 
+\index{main.\+cpp@{main.\+cpp}!spin\+Wrapper@{spin\+Wrapper}}
+\index{spin\+Wrapper@{spin\+Wrapper}!main.\+cpp@{main.\+cpp}}
+\subsubsection{\texorpdfstring{spin\+Wrapper()}{spinWrapper()}}
+{\footnotesize\ttfamily void spin\+Wrapper (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8cpp_aef80cffe0085e212ea7091537bd09d5b}\label{main_8cpp_aef80cffe0085e212ea7091537bd09d5b}} 
+\index{main.\+cpp@{main.\+cpp}!system\+\_\+init@{system\+\_\+init}}
+\index{system\+\_\+init@{system\+\_\+init}!main.\+cpp@{main.\+cpp}}
+\subsubsection{\texorpdfstring{system\+\_\+init()}{system\_init()}}
+{\footnotesize\ttfamily void system\+\_\+init (\begin{DoxyParamCaption}\item[{Parameters $\ast$}]{\+\_\+p\+\_\+,  }\item[{U\+N\+I\+V\+E\+R\+S\+A\+L\+\_\+\+S\+T\+A\+TE $\ast$}]{\+\_\+unity\+\_\+,  }\item[{U\+A\+V\+C\+O\+N\+T\+R\+O\+L\+\_\+\+I\+N\+T\+E\+R\+F\+A\+CE $\ast$}]{\+\_\+uav\+\_\+ifs\+\_\+,  }\item[{positon\+\_\+\+Local\+\_\+\+N\+E\+D\+\_\+t $\ast$}]{target\+\_\+pos\+\_\+flow,  }\item[{F\+L\+Y\+\_\+\+P\+L\+A\+N\+\_\+T $\ast$}]{\+\_\+sub\+\_\+fly\+\_\+wps\+\_\+ }\end{DoxyParamCaption})}
+
+
+
+\subsection{变量说明}
+\mbox{\Hypertarget{main_8cpp_ad5e0dbd36f0d71fce9b00b7f991b2f38}\label{main_8cpp_ad5e0dbd36f0d71fce9b00b7f991b2f38}} 
+\index{main.\+cpp@{main.\+cpp}!mtx@{mtx}}
+\index{mtx@{mtx}!main.\+cpp@{main.\+cpp}}
+\subsubsection{\texorpdfstring{mtx}{mtx}}
+{\footnotesize\ttfamily std\+::mutex mtx}
+
+\mbox{\Hypertarget{main_8cpp_a7071b0092ad8c5b57d6cc40c5f803df5}\label{main_8cpp_a7071b0092ad8c5b57d6cc40c5f803df5}} 
+\index{main.\+cpp@{main.\+cpp}!rd@{rd}}
+\index{rd@{rd}!main.\+cpp@{main.\+cpp}}
+\subsubsection{\texorpdfstring{rd}{rd}}
+{\footnotesize\ttfamily std\+::random\+\_\+device rd}
+
+\mbox{\Hypertarget{main_8cpp_a2a811a65e867041bcee444e8e66188a9}\label{main_8cpp_a2a811a65e867041bcee444e8e66188a9}} 
+\index{main.\+cpp@{main.\+cpp}!unity\+\_\+state@{unity\+\_\+state}}
+\index{unity\+\_\+state@{unity\+\_\+state}!main.\+cpp@{main.\+cpp}}
+\subsubsection{\texorpdfstring{unity\+\_\+state}{unity\_state}}
+{\footnotesize\ttfamily U\+N\+I\+V\+E\+R\+S\+A\+L\+\_\+\+S\+T\+A\+TE unity\+\_\+state}
+

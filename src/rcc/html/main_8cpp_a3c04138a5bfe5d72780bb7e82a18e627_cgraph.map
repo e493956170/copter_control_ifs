@@ -1,0 +1,7 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$main_8cpp.html#aef80cffe0085e212ea7091537bd09d5b" title="system_init" alt="" coords="149,5,238,32"/>
+<area shape="rect" id="node3" href="$main_8cpp.html#abef969771cc38c5bef644aee2814c30f" title="spinWrapper" alt="" coords="146,56,241,83"/>
+<area shape="rect" id="node4" href="$main_8cpp.html#a357c3c819884a88856b9af19f7056691" title="_copter_control_thread\l_Wrapper" alt="" coords="116,107,271,149"/>
+<area shape="rect" id="node5" href="$main_8cpp.html#a12ac40f811eae269ff4a59042875cb71" title="_rrt_thread_Wrapper" alt="" coords="123,173,263,200"/>
+<area shape="rect" id="node6" href="$main_8cpp.html#a2a4c4a53067044ace13905beea7b2167" title="_waypointsMangaerThread\l_Wrapper" alt="" coords="104,225,283,266"/>
+</map>

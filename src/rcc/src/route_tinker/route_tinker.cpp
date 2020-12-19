@@ -14,7 +14,8 @@
 #include <opencv2/core/eigen.hpp>
 #include <iostream>
 #include <chrono>
-#include <algorithm>   
+#include <algorithm>  
+#include <iomanip>
 using namespace cv;
 
 int RRT_Base::get_nearst_point_index(Tree_t trees,TreeNode_t new_point){
@@ -341,14 +342,17 @@ class LOG{
     void to_log(){
         std::ofstream outputfile;
         outputfile.open(file_path.str().c_str(),ios::app);
+		outputfile.setf(std::ios::fixed);
+		outputfile.precision(10);
         outputfile<<data.str();
         outputfile.close();
     }
 
-    std::stringstream data;
     std::stringstream file_path;
     virtual void title()=0;
     public:
+    std::stringstream data;
+
     LOG(std::string file = "calc_time_log"){
         static std::stringstream init_time;
         std::time_t today_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -356,10 +360,13 @@ class LOG{
         file_path<<"/home/az/rcc/"<<"calc_time_log";
         mkdir(file_path.str().c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
         fstream _file;
-        file_path<<"/calc_time_log.csv";        
+        file_path<<"/calc_time_log.csv";  
+		data.setf(std::ios::fixed);
+		data.precision(10);
     }
     template<typename T>
     LOG &operator<< (T value){
+		
         data<<value<<";";
         return *this;
     }
@@ -373,8 +380,9 @@ class CALC_TIME_LOG:public LOG{
         (*this)<<"起始位置x"<<"起始位置y"<<"结束位置x"<<"结束位置y";
         (*this)<<"RRT 开始时间"<<"RRT 结束时间"<<"总迭代次数";
         (*this)<<"是否找到RRT路径";
-        (*this)<<"树1大小"<<"树2大小"<<"简化后尺寸";
-        (*this)<<"MS开始时间"<<"MS结束时间"<<"\r\n";
+        (*this)<<"树1大小"<<"树2大小"<<"简化后尺寸"<<"路径长度";
+		(*this) << "MS开始时间" << "MS结束时间";
+		(this->data)<<"\r\n";
     }
 public:
     CALC_TIME_LOG()
@@ -389,7 +397,6 @@ WPS CONNECT_RRT::get_RRT_Path(Tree_t RRTtree){
     int last_idx = RRTtree.path_end_idx;
     while(last_idx>-1){
         path.push_back(RRTtree[last_idx]);
-        // rout("%s x:%f y:%f z:%f %d",RRTtree.name.c_str(),RRTtree[last_idx].x,RRTtree[last_idx].y,RRTtree[last_idx].z,RRTtree[last_idx].index);
         last_idx=RRTtree[last_idx].father_index;
     }
     return path;
@@ -397,24 +404,17 @@ WPS CONNECT_RRT::get_RRT_Path(Tree_t RRTtree){
 
 WPS CONNECT_RRT::combine_two_rrt_path(Tree_t RRTtree1,Tree_t RRTtree2){
     WPS path;
-        // rout("2.1");
-    // for(int i=0;i<RRTtree1.size();i++){
-    //     rout("RRT %f %f %d %d",RRTtree1[i].x,RRTtree1[i].y,RRTtree1[i].index,RRTtree1[i].father_index);
-    // }
+
     WPS path1=get_RRT_Path(RRTtree1);
-        // rout("2.2");
 
     WPS path2=get_RRT_Path(RRTtree2);
-        // rout("2.3");
 
     for(int i = path1.size()-1;i>=0;i--){//树1 正向添加
         path.push_back(path1[i]);
     }
-    // rout("2.4");
     for(int i = 0;i<path2.size();i++){//树2 反向添加
         path.push_back(path2[i]);
     } 
-    // rout("2.5");
     return path;
 }
 
@@ -463,11 +463,11 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan(
  
     uint64_t iter_cnt=0;
     std::stringstream start_time ;
-    ros::Time start_time_mark = ros::Time::now();
+    ros::WallTime start_time_mark = ros::WallTime::now();
     start_time << start_time_mark.toSec();
 	while(iter<_p->rrt_one_step_max_iterations)
 	{
-        if(ros::Time::now()-start_time_mark>ros::Duration(1.2)){
+        if(ros::WallTime::now()-start_time_mark>ros::WallDuration(1.2)){
             log.end();
             return RRT_STATE_C::RRT_FAILED;
             break;
@@ -561,7 +561,9 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan(
 		iter=0;
 	}
     std::stringstream end_time ;
-    end_time << ros::Time::now().toSec();
+	end_time.setf(std::ios::fixed);
+	end_time.precision(10);
+    end_time << ros::WallTime::now().toSec();
 
     rout("RRT start time %s,end time:%s.Iteration :%d",start_time.str().c_str(),end_time.str().c_str(),iter_cnt);
 
@@ -575,7 +577,8 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan(
 	if(find_path==true){
 
         std::stringstream ss;
-
+		ss.setf(std::ios::fixed);
+		ss.precision(10);
         ss<<"finished size"<<RRTtree_1.size()+RRTtree_2.size()<<"\r\n";
         log<<RRTtree_1.size()<<RRTtree_2.size();
 
@@ -597,7 +600,7 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan(
 
         if(_p->minimumsnap_en){
             if(simplified_path.size()>2){
-                double start_time = ros::Time::now().toSec();
+                double start_time = ros::WallTime::now().toSec();
                 switch(minimumsnap_calc(attpos
                                             ,simplified_path
                                             ,ret_wps))
@@ -609,7 +612,7 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan(
                     case RRT_STATE_C::MINIMUMSNAP_SRV_TIME_OUT_FAILED:
                         return RRT_STATE_C::MINIMUMSNAP_SRV_TIME_OUT_FAILED;
                 }
-                double end_time = ros::Time::now().toSec();
+                double end_time = ros::WallTime::now().toSec();
                 rout("MinimumSnap start time %f,end time:%f.",start_time,end_time);
                 log<<start_time<<end_time;
             }else{
@@ -636,7 +639,6 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan(
         rout("no found");
         log.end();
 	    return RRT_STATE_C::RRT_FAILED;
-        // simplified_path.push_back(WP(1,0,0));
 	}
     if(_p->show_path_map){
         cv::flip(img,img,0);
@@ -654,7 +656,6 @@ CONNECT_RRT::Tree_t CONNECT_RRT::rrt_to_point(Tree_t RRTtree,TreeNode_t target,O
     
     if(check_if_reached_goal(get_nearst_point(RRTtree,target),target,_p->rrt_reach_goal_thresh*2)){
         rout("SKIP RRT TO POINT");
-        // RRTtree.set_path_end(target);
         return RRTtree;
     }
 	while(iter<_p->rrt_one_step_max_iterations)
@@ -729,7 +730,7 @@ CONNECT_RRT::Tree_t CONNECT_RRT::trim_tree(Tree_t RRTtree,OBSTACLE_GRID_MAP &obs
                 std::vector<int> tmp_list;
                 bool *finded_mask = new bool[RRTtree.size()]();
                 tmp_list=find_all_son_index(RRTtree,i,tmp_list,finded_mask);
-                rout("tmp_list_size %d",tmp_list.size());
+                //rout("tmp_list_size %d",tmp_list.size());
                 delete [] finded_mask;
                 if(!tmp_list.empty()) {
                     output_list.insert(output_list.end(),tmp_list.begin(),tmp_list.end());//列表合并
@@ -755,18 +756,18 @@ CONNECT_RRT::Tree_t CONNECT_RRT::trim_tree(Tree_t RRTtree,OBSTACLE_GRID_MAP &obs
         if(output_list[i]<RRTtree.get_root_index()){
              tmp_value--;
         }
-        rout("%s tmp_value%d   %d  %d",RRTtree.name.c_str(),output_list[i],tmp_value,RRTtree.get_root_index());
+        //rout("%s tmp_value%d   %d  %d",RRTtree.name.c_str(),output_list[i],tmp_value,RRTtree.get_root_index());
     }
 
  
-    rout("current root index %d",RRTtree.get_root_index());
+    //rout("current root index %d",RRTtree.get_root_index());
     RRTtree.set_root_index(RRTtree.get_root_index()+tmp_value);
     for (int i=0;i<RRTtree.size();i++){  //更新所有的索引到新的索引上
         if(change_of_tree_index[i]!=0){
             RRTtree[i].father_index+=change_of_tree_index[i];
         }
     }
-    rout("new root index %d",RRTtree.get_root_index());
+    //rout("new root index %d",RRTtree.get_root_index());
 
     // rout("trim 4");
     
@@ -776,7 +777,7 @@ CONNECT_RRT::Tree_t CONNECT_RRT::trim_tree(Tree_t RRTtree,OBSTACLE_GRID_MAP &obs
     }
     for (uint32_t i=0;i<RRTtree.size();i++){  //更新所有的索引到新的索引上
         RRTtree[i].index=i;
-        rout("RRTtree[i].index=%d",RRTtree[i].index);
+        //rout("RRTtree[i].index=%d",RRTtree[i].index);
     }
     // rout("trim 5");
 
@@ -815,7 +816,8 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan_online(
     
     log<<start.x<<start.y<<target.x<<target.y;
 
-	rout("\r\n RRT Mission Started.\r\nstart x:%f,y:%f, end x:%f,y:%f.",start.x,start.y,target.x,target.y);
+	rout("RRT Mission Started");
+	rout("start x:%.6f,y:%.6f, end x:%.6f,y:%.6f.",start.x,start.y,target.x,target.y);
 
 	Tree_t RRTtree_1(start,"start"),RRTtree_2(target,"target");
 
@@ -831,8 +833,10 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan_online(
  
     uint64_t iter_cnt=0;
     std::stringstream start_time;
+	start_time.setf(std::ios::fixed);
+	start_time.precision(10);
     static Tree_t RRTtree_1_Last,RRTtree_2_Last;
-    ros::Time start_time_mark = ros::Time::now();
+    ros::WallTime start_time_mark = ros::WallTime::now();
     start_time << start_time_mark.toSec();
 
     //计算树和起始树和终点树的距离
@@ -840,7 +844,7 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan_online(
         double s_2_t_1 = calc_dist(get_nearst_point(RRTtree_1_Last,start),start);
         double s_2_t_2 = calc_dist(get_nearst_point(RRTtree_2_Last,start),start);
         if(s_2_t_1<s_2_t_2)
-        {   
+        {
             RRTtree_1=rrt_to_point(RRTtree_1_Last,start,obstaclesMap);
             int idx_1 = get_nearst_point_index(RRTtree_1,start);
             RRTtree_1.reorder(idx_1);//重排列
@@ -859,7 +863,7 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan_online(
         }
         //距离树一较远
         if(s_2_t_1>s_2_t_2){//ro
-            rout("far tree1 ");
+            // rout("far tree1 ");
             RRTtree_2=rrt_to_point(RRTtree_2_Last,target,obstaclesMap);
             int idx_2 = get_nearst_point_index(RRTtree_2,target);
             RRTtree_2.reorder(idx_2);//
@@ -872,7 +876,7 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan_online(
 	while(iter<_p->rrt_one_step_max_iterations)
 	{
         find_path=false;
-        if(ros::Time::now()-start_time_mark>ros::Duration(2)){
+        if(ros::WallTime::now()-start_time_mark>ros::WallDuration(2)){
             log.end();
             return RRT_STATE_C::RRT_FAILED;
             break;
@@ -993,7 +997,9 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan_online(
 	}
     rrt_new_point_vis->clear();
     std::stringstream end_time ;
-    end_time << ros::Time::now().toSec();
+	end_time.setf(std::ios::fixed);
+	end_time.precision(10);
+    end_time << ros::WallTime::now().toSec();
 
     if(RRTtree_1.name!="start"){ //保证tree1是起始树 tree2 是终点树
         RRTtree_1.swap(RRTtree_2);
@@ -1045,7 +1051,7 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan_online(
         
         if(_p->minimumsnap_en)
         if(simplified_path.size()>2){
-            double start_time = ros::Time::now().toSec();
+            double start_time = ros::WallTime::now().toSec();
             switch(minimumsnap_calc(attpos
                                         ,simplified_path
                                         ,ret_wps))
@@ -1057,8 +1063,8 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan_online(
                 case RRT_STATE_C::MINIMUMSNAP_SRV_TIME_OUT_FAILED:
                     return RRT_STATE_C::MINIMUMSNAP_SRV_TIME_OUT_FAILED;
             }
-            double end_time = ros::Time::now().toSec();
-            rout("MinimumSnap start time: %f,end time:%f.",start_time,end_time);
+            double end_time = ros::WallTime::now().toSec();
+            rout("MinimumSnap start time: %.10f,end time:%.10f.",start_time,end_time);
             log<<start_time<<end_time;
         }else{
             ret_wps.clear();

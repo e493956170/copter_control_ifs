@@ -1,0 +1,474 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.13"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>My Project: src/main.cpp 文件参考</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+  $(document).ready(initResizable);
+</script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">My Project
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.8.13 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'搜索');
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','搜索');
+  $(document).ready(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){initNavTree('main_8cpp.html','');});
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#define-members">宏定义</a> &#124;
+<a href="#func-members">函数</a> &#124;
+<a href="#var-members">变量</a>  </div>
+  <div class="headertitle">
+<div class="title">main.cpp 文件参考</div>  </div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><code>#include &lt;ros/ros.h&gt;</code><br />
+<code>#include &quot;math.h&quot;</code><br />
+<code>#include &quot;route_tinker/route_tinker.h&quot;</code><br />
+<code>#include &quot;route_tracker/route_tracker.h&quot;</code><br />
+<code>#include &quot;route_tracker/wp_manager.h&quot;</code><br />
+<code>#include &quot;uav_link_ifs/uavcontrol_interface.h&quot;</code><br />
+<code>#include &quot;uav_link_ifs/mavlink_interface.h&quot;</code><br />
+<code>#include &quot;base/cfg.h&quot;</code><br />
+<code>#include &quot;base/baseMethod.h&quot;</code><br />
+<code>#include &quot;base/baseType.h&quot;</code><br />
+<code>#include &quot;flight_task/flow_attacher.h&quot;</code><br />
+<code>#include &quot;sensor/lidar_data_process.h&quot;</code><br />
+<code>#include &lt;minimumsnap_route/service.h&gt;</code><br />
+<code>#include &lt;opencv2/opencv.hpp&gt;</code><br />
+<code>#include &lt;mutex&gt;</code><br />
+<code>#include &lt;thread&gt;</code><br />
+<code>#include &lt;functional&gt;</code><br />
+</div><div class="textblock"><div class="dynheader">
+main.cpp 的引用(Include)关系图:</div>
+<div class="dyncontent">
+<div class="center"><img src="main_8cpp__incl.png" border="0" usemap="#src_2main_8cpp" alt=""/></div>
+</div>
+</div>
+<p><a href="main_8cpp_source.html">浏览源代码.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+宏定义</h2></td></tr>
+<tr class="memitem:a5ac4b17db930392c756a747dc7f98e5f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#a5ac4b17db930392c756a747dc7f98e5f">rout</a>&#160;&#160;&#160;ROS_INFO</td></tr>
+<tr class="separator:a5ac4b17db930392c756a747dc7f98e5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+函数</h2></td></tr>
+<tr class="memitem:abef969771cc38c5bef644aee2814c30f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#abef969771cc38c5bef644aee2814c30f">spinWrapper</a> ()</td></tr>
+<tr class="separator:abef969771cc38c5bef644aee2814c30f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a357c3c819884a88856b9af19f7056691"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#a357c3c819884a88856b9af19f7056691">_copter_control_thread_Wrapper</a> (PID_2D_control *p, positon_Local_NED_t &amp;input_pos_flow)</td></tr>
+<tr class="separator:a357c3c819884a88856b9af19f7056691"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a12ac40f811eae269ff4a59042875cb71"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#a12ac40f811eae269ff4a59042875cb71">_rrt_thread_Wrapper</a> (CONNECT_RRT *p, PROBABILISTIC_MAP &amp;GridMap, FLY_PLAN_T &amp;current_route)</td></tr>
+<tr class="separator:a12ac40f811eae269ff4a59042875cb71"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a4c4a53067044ace13905beea7b2167"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#a2a4c4a53067044ace13905beea7b2167">_waypointsMangaerThread_Wrapper</a> (WP_UPDATER *p, FLY_PLAN_T &amp;fly_plan, positon_Local_NED_t &amp;target_pos_flow)</td></tr>
+<tr class="separator:a2a4c4a53067044ace13905beea7b2167"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aef80cffe0085e212ea7091537bd09d5b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#aef80cffe0085e212ea7091537bd09d5b">system_init</a> (Parameters *_p_, UNIVERSAL_STATE *_unity_, UAVCONTROL_INTERFACE *_uav_ifs_, positon_Local_NED_t *target_pos_flow, FLY_PLAN_T *_sub_fly_wps_)</td></tr>
+<tr class="separator:aef80cffe0085e212ea7091537bd09d5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3c04138a5bfe5d72780bb7e82a18e627"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627">main</a> (int argc, char **argv)</td></tr>
+<tr class="separator:a3c04138a5bfe5d72780bb7e82a18e627"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+变量</h2></td></tr>
+<tr class="memitem:ad5e0dbd36f0d71fce9b00b7f991b2f38"><td class="memItemLeft" align="right" valign="top">std::mutex&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#ad5e0dbd36f0d71fce9b00b7f991b2f38">mtx</a></td></tr>
+<tr class="separator:ad5e0dbd36f0d71fce9b00b7f991b2f38"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7071b0092ad8c5b57d6cc40c5f803df5"><td class="memItemLeft" align="right" valign="top">std::random_device&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#a7071b0092ad8c5b57d6cc40c5f803df5">rd</a></td></tr>
+<tr class="separator:a7071b0092ad8c5b57d6cc40c5f803df5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a811a65e867041bcee444e8e66188a9"><td class="memItemLeft" align="right" valign="top">UNIVERSAL_STATE&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#a2a811a65e867041bcee444e8e66188a9">unity_state</a></td></tr>
+<tr class="separator:a2a811a65e867041bcee444e8e66188a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<h2 class="groupheader">宏定义说明</h2>
+<a id="a5ac4b17db930392c756a747dc7f98e5f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5ac4b17db930392c756a747dc7f98e5f">&#9670;&nbsp;</a></span>rout</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define rout&#160;&#160;&#160;ROS_INFO</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="main_8cpp_source.html">main.cpp</a> 第 <a class="el" href="main_8cpp_source.html#l00030">30</a> 行定义.</p>
+
+</div>
+</div>
+<h2 class="groupheader">函数说明</h2>
+<a id="a357c3c819884a88856b9af19f7056691"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a357c3c819884a88856b9af19f7056691">&#9670;&nbsp;</a></span>_copter_control_thread_Wrapper()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void _copter_control_thread_Wrapper </td>
+          <td>(</td>
+          <td class="paramtype">PID_2D_control *&#160;</td>
+          <td class="paramname"><em>p</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">positon_Local_NED_t &amp;&#160;</td>
+          <td class="paramname"><em>input_pos_flow</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="main_8cpp_source.html">main.cpp</a> 第 <a class="el" href="main_8cpp_source.html#l00040">40</a> 行定义.</p>
+<div class="dynheader">
+这是这个函数的调用关系图:</div>
+<div class="dyncontent">
+<div class="center"><img src="main_8cpp_a357c3c819884a88856b9af19f7056691_icgraph.png" border="0" usemap="#main_8cpp_a357c3c819884a88856b9af19f7056691_icgraph" alt=""/></div>
+<map name="main_8cpp_a357c3c819884a88856b9af19f7056691_icgraph" id="main_8cpp_a357c3c819884a88856b9af19f7056691_icgraph">
+<area shape="rect" id="node2" href="main_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="208,13,259,39"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a12ac40f811eae269ff4a59042875cb71"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a12ac40f811eae269ff4a59042875cb71">&#9670;&nbsp;</a></span>_rrt_thread_Wrapper()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void _rrt_thread_Wrapper </td>
+          <td>(</td>
+          <td class="paramtype">CONNECT_RRT *&#160;</td>
+          <td class="paramname"><em>p</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">PROBABILISTIC_MAP &amp;&#160;</td>
+          <td class="paramname"><em>GridMap</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FLY_PLAN_T &amp;&#160;</td>
+          <td class="paramname"><em>current_route</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="main_8cpp_source.html">main.cpp</a> 第 <a class="el" href="main_8cpp_source.html#l00043">43</a> 行定义.</p>
+<div class="dynheader">
+这是这个函数的调用关系图:</div>
+<div class="dyncontent">
+<div class="center"><img src="main_8cpp_a12ac40f811eae269ff4a59042875cb71_icgraph.png" border="0" usemap="#main_8cpp_a12ac40f811eae269ff4a59042875cb71_icgraph" alt=""/></div>
+<map name="main_8cpp_a12ac40f811eae269ff4a59042875cb71_icgraph" id="main_8cpp_a12ac40f811eae269ff4a59042875cb71_icgraph">
+<area shape="rect" id="node2" href="main_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="193,5,244,32"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a2a4c4a53067044ace13905beea7b2167"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a4c4a53067044ace13905beea7b2167">&#9670;&nbsp;</a></span>_waypointsMangaerThread_Wrapper()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void _waypointsMangaerThread_Wrapper </td>
+          <td>(</td>
+          <td class="paramtype">WP_UPDATER *&#160;</td>
+          <td class="paramname"><em>p</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FLY_PLAN_T &amp;&#160;</td>
+          <td class="paramname"><em>fly_plan</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">positon_Local_NED_t &amp;&#160;</td>
+          <td class="paramname"><em>target_pos_flow</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="main_8cpp_source.html">main.cpp</a> 第 <a class="el" href="main_8cpp_source.html#l00050">50</a> 行定义.</p>
+<div class="dynheader">
+这是这个函数的调用关系图:</div>
+<div class="dyncontent">
+<div class="center"><img src="main_8cpp_a2a4c4a53067044ace13905beea7b2167_icgraph.png" border="0" usemap="#main_8cpp_a2a4c4a53067044ace13905beea7b2167_icgraph" alt=""/></div>
+<map name="main_8cpp_a2a4c4a53067044ace13905beea7b2167_icgraph" id="main_8cpp_a2a4c4a53067044ace13905beea7b2167_icgraph">
+<area shape="rect" id="node2" href="main_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="232,13,283,39"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a3c04138a5bfe5d72780bb7e82a18e627"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3c04138a5bfe5d72780bb7e82a18e627">&#9670;&nbsp;</a></span>main()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int main </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>argc</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char **&#160;</td>
+          <td class="paramname"><em>argv</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="main_8cpp_source.html">main.cpp</a> 第 <a class="el" href="main_8cpp_source.html#l00062">62</a> 行定义.</p>
+<div class="dynheader">
+函数调用图:</div>
+<div class="dyncontent">
+<div class="center"><img src="main_8cpp_a3c04138a5bfe5d72780bb7e82a18e627_cgraph.png" border="0" usemap="#main_8cpp_a3c04138a5bfe5d72780bb7e82a18e627_cgraph" alt=""/></div>
+<map name="main_8cpp_a3c04138a5bfe5d72780bb7e82a18e627_cgraph" id="main_8cpp_a3c04138a5bfe5d72780bb7e82a18e627_cgraph">
+<area shape="rect" id="node2" href="main_8cpp.html#aef80cffe0085e212ea7091537bd09d5b" title="system_init" alt="" coords="149,5,238,32"/>
+<area shape="rect" id="node3" href="main_8cpp.html#abef969771cc38c5bef644aee2814c30f" title="spinWrapper" alt="" coords="146,56,241,83"/>
+<area shape="rect" id="node4" href="main_8cpp.html#a357c3c819884a88856b9af19f7056691" title="_copter_control_thread\l_Wrapper" alt="" coords="116,107,271,149"/>
+<area shape="rect" id="node5" href="main_8cpp.html#a12ac40f811eae269ff4a59042875cb71" title="_rrt_thread_Wrapper" alt="" coords="123,173,263,200"/>
+<area shape="rect" id="node6" href="main_8cpp.html#a2a4c4a53067044ace13905beea7b2167" title="_waypointsMangaerThread\l_Wrapper" alt="" coords="104,225,283,266"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="abef969771cc38c5bef644aee2814c30f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abef969771cc38c5bef644aee2814c30f">&#9670;&nbsp;</a></span>spinWrapper()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void spinWrapper </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="main_8cpp_source.html">main.cpp</a> 第 <a class="el" href="main_8cpp_source.html#l00033">33</a> 行定义.</p>
+<div class="dynheader">
+这是这个函数的调用关系图:</div>
+<div class="dyncontent">
+<div class="center"><img src="main_8cpp_abef969771cc38c5bef644aee2814c30f_icgraph.png" border="0" usemap="#main_8cpp_abef969771cc38c5bef644aee2814c30f_icgraph" alt=""/></div>
+<map name="main_8cpp_abef969771cc38c5bef644aee2814c30f_icgraph" id="main_8cpp_abef969771cc38c5bef644aee2814c30f_icgraph">
+<area shape="rect" id="node2" href="main_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="148,5,199,32"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="aef80cffe0085e212ea7091537bd09d5b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aef80cffe0085e212ea7091537bd09d5b">&#9670;&nbsp;</a></span>system_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void system_init </td>
+          <td>(</td>
+          <td class="paramtype">Parameters *&#160;</td>
+          <td class="paramname"><em>_p_</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">UNIVERSAL_STATE *&#160;</td>
+          <td class="paramname"><em>_unity_</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">UAVCONTROL_INTERFACE *&#160;</td>
+          <td class="paramname"><em>_uav_ifs_</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">positon_Local_NED_t *&#160;</td>
+          <td class="paramname"><em>target_pos_flow</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FLY_PLAN_T *&#160;</td>
+          <td class="paramname"><em>_sub_fly_wps_</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="main_8cpp_source.html">main.cpp</a> 第 <a class="el" href="main_8cpp_source.html#l00054">54</a> 行定义.</p>
+<div class="dynheader">
+这是这个函数的调用关系图:</div>
+<div class="dyncontent">
+<div class="center"><img src="main_8cpp_aef80cffe0085e212ea7091537bd09d5b_icgraph.png" border="0" usemap="#main_8cpp_aef80cffe0085e212ea7091537bd09d5b_icgraph" alt=""/></div>
+<map name="main_8cpp_aef80cffe0085e212ea7091537bd09d5b_icgraph" id="main_8cpp_aef80cffe0085e212ea7091537bd09d5b_icgraph">
+<area shape="rect" id="node2" href="main_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="143,5,193,32"/>
+</map>
+</div>
+
+</div>
+</div>
+<h2 class="groupheader">变量说明</h2>
+<a id="ad5e0dbd36f0d71fce9b00b7f991b2f38"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad5e0dbd36f0d71fce9b00b7f991b2f38">&#9670;&nbsp;</a></span>mtx</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::mutex mtx</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="main_8cpp_source.html">main.cpp</a> 第 <a class="el" href="main_8cpp_source.html#l00026">26</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a7071b0092ad8c5b57d6cc40c5f803df5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7071b0092ad8c5b57d6cc40c5f803df5">&#9670;&nbsp;</a></span>rd</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::random_device rd</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="main_8cpp_source.html">main.cpp</a> 第 <a class="el" href="main_8cpp_source.html#l00027">27</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a2a811a65e867041bcee444e8e66188a9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a811a65e867041bcee444e8e66188a9">&#9670;&nbsp;</a></span>unity_state</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">UNIVERSAL_STATE unity_state</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="main_8cpp_source.html">main.cpp</a> 第 <a class="el" href="main_8cpp_source.html#l00029">29</a> 行定义.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="main_8cpp.html">main.cpp</a></li>
+    <li class="footer">制作者
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.13 </li>
+  </ul>
+</div>
+</body>
+</html>

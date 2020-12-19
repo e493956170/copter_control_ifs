@@ -27,23 +27,23 @@ def addTreeitemClass(ui,title):
     QTreeWidgetItem(ui.treeWidget)
     ui.treeWidget.topLevelItem(ui.treeWidget.topLevelItemCount()-1).setText(0, _translate("MainWindow", title))
 
-def addTreeitemContent(ui,title,parameter,value,note):
+def addTreeitemContent(ui,title,parameter,value,comment):
     _translate = QtCore.QCoreApplication.translate
     for i in range(ui.treeWidget.topLevelItemCount()):
         if title == ui.treeWidget.topLevelItem(i).text(0):
             for j in  range(ui.treeWidget.topLevelItem(i).childCount()):
                 if ui.treeWidget.topLevelItem(i).child(j).text(0) == parameter:
                     ui.treeWidget.topLevelItem(i).child(j).setText(1,_translate("MainWindow",value))
-                    ui.treeWidget.topLevelItem(i).child(j).setText(2,_translate("MainWindow",note))
+                    ui.treeWidget.topLevelItem(i).child(j).setText(2,_translate("MainWindow",comment))
                     pass
             QTreeWidgetItem(ui.treeWidget.topLevelItem(i))
             ui.treeWidget.topLevelItem(i).child(ui.treeWidget.topLevelItem(i).childCount()-1).setText(0,_translate("MainWindow",parameter))
             ui.treeWidget.topLevelItem(i).child(ui.treeWidget.topLevelItem(i).childCount()-1).setText(1,_translate("MainWindow",value))
-            ui.treeWidget.topLevelItem(i).child(ui.treeWidget.topLevelItem(i).childCount()-1).setText(2,_translate("MainWindow",note))
+            ui.treeWidget.topLevelItem(i).child(ui.treeWidget.topLevelItem(i).childCount()-1).setText(2,_translate("MainWindow",comment))
             ui.treeWidget.expandAll()
             return
     addTreeitemClass(ui,title)
-    addTreeitemContent(ui,title,parameter,value,note)
+    addTreeitemContent(ui,title,parameter,value,comment)
 
 def ClickToSaveFile(ui):
     f=open(ui.lineEdit.text(), "a+")
@@ -58,11 +58,11 @@ def ClickToSaveFile(ui):
             content = ""
             parameter = ui.treeWidget.topLevelItem(i).child(j).text(0)
             value = ui.treeWidget.topLevelItem(i).child(j).text(1)
-            note = ui.treeWidget.topLevelItem(i).child(j).text(2)
-            if note == "":
+            comment = ui.treeWidget.topLevelItem(i).child(j).text(2)
+            if comment == "":
                 content = parameter +'  =  ' + value +'\n'
             else:
-                content = parameter +'  =  ' + value +'  '+ '#'+ note + '\n'
+                content = parameter +'  =  ' + value +'  '+ '#'+ comment + '\n'
             f.write(content)
     f.close()
     ui.label_2.setText("状态：参数已保存")
@@ -78,24 +78,24 @@ def ClickToLoadFile(ui):
                 match  = re.search(r"--",line)
                 parameter=""
                 value=""
-                note=""
+                comment=""
                 if(match):
                     match = re.search(r"-(\w+?)-",line)
                     title = line[match.span()[0]+1:match.span()[1]-1]
                     addTreeitemClass(ui,title)
                 else:
                     line = line.replace(" ", "")
-                    note_match = re.search(r"#",line)
-                    if(note_match):
-                        note = line[note_match.span()[0]+1:-1]
+                    comment_match = re.search(r"#",line)
+                    if(comment_match):
+                        comment = line[comment_match.span()[0]+1:-1]
                         value_match = re.search(r"=",line)
                         parameter = line[0:value_match.span()[0]]
-                        value = line[value_match.span()[1]:note_match.span()[0]]
+                        value = line[value_match.span()[1]:comment_match.span()[0]]
                     else:
                         value_match = re.search(r"=",line)
                         parameter = line[0:value_match.span()[0]]
                         value = line[value_match.span()[1]:-1]
-                    addTreeitemContent(ui,title,parameter,value,note)
+                    addTreeitemContent(ui,title,parameter,value,comment)
         ui.label_2.setText("状态：参数已加载")
 
     except Exception as e:
@@ -118,12 +118,12 @@ def ClickToAddValue(ui):
     title=ui.lineEdit_2.text().replace(" ","")
     parameter=ui.lineEdit_3.text().replace(" ","")
     value=ui.lineEdit_4.text().replace(" ","")
-    note=ui.lineEdit_5.text().replace(" ","")
+    comment=ui.lineEdit_5.text().replace(" ","")
     if title =="" or parameter=="" or value =="":
         ui.label_2.setText("状态：请检查数据合法性,请注意数据中不允许有空格")
         return 
-    addTreeitemContent(ui,title,parameter,value,note)
-    ui.label_2.setText("状态：数据已添加成功 {}->{}={}#{}".format(title,parameter,value,note))
+    addTreeitemContent(ui,title,parameter,value,comment)
+    ui.label_2.setText("状态：数据已添加成功 {}->{}={}#{}".format(title,parameter,value,comment))
 
 
 if __name__ == '__main__':
