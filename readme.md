@@ -24,15 +24,15 @@ More visualiztion wrapper of rviz  is under working . Also ,the purpose of this 
 
 https://www.bilibili.com/video/BV1C7411f75E/
 
-#依赖 Requirements
+# 依赖 Requirements
 sudo apt install ros-melodic-desktop-full mavros opencv2 octomap python3 libboost-dev
 pip3 install pyqt5 osqp numpy scipy matplotlib
 
 
-#近期的更新 Recently Updates
+# 近期的更新 Recently Updates
 1、调整了配置文件的读取方式，现在会自动追踪名为"my_catkin_ws"的工作空间，并在其中读取配置文件了。2020年12月19日
 
-#下一步计划Next Plan
+# 下一步计划Next Plan
 1、解耦框架中的一些视觉模块的嵌入，轻化主程序。
 
 
