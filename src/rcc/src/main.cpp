@@ -62,7 +62,7 @@ void system_init(Parameters *_p_,UniversalState *_unity_,UAVControlInterface *_u
 	_target_pos_flow=target_pos_flow;
 	_sub_fly_wps=fly_plan;
 }	
-
+string workspace_path="";
 int main (int argc,char **argv)
 {
 /**
@@ -95,6 +95,7 @@ int main (int argc,char **argv)
 			}
 
 		}
+		workspace_path = file_path;
 		file_path = file_path.substr(0,file_path.find_last_of("/"));
 		file_path = file_path + STANDARD_CONFIG_FILE_SUFFIX;
 	}

@@ -1216,11 +1216,12 @@ void ConnectRRT::Create_Thread(ProbabilisticMap &GridMap
         std::time_t today_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         time<< std::ctime(&today_time)<<"_"<<(*rd)()%100;
         auto map_copy = GridMap.Gridmap.map;
+        extern string workspace_path;
         if(_p->record_to_file)
         {
             std::ofstream outputfile;
             std::stringstream file_path;
-            file_path<<"/home/az/rcc/"<<init_time.str();
+            file_path<<workspace_path<<"/log/"<<init_time.str();
             mkdir(file_path.str().c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
             file_path<<"/"<<time.str();
             mkdir(file_path.str().c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
@@ -1259,7 +1260,7 @@ void ConnectRRT::Create_Thread(ProbabilisticMap &GridMap
         {
             std::ofstream outputfile;
             std::stringstream file_path;
-            file_path<<"/home/az/rcc/"<<init_time.str()<<"/"<<time.str()<<"/obstacleMapMat.csv";
+            file_path<<workspace_path<<"/log/"<<init_time.str()<<"/"<<time.str()<<"/obstacleMapMat.csv";
             outputfile.open(file_path.str().c_str());
             outputfile<<GridMap.Gridmap.center_x<<";"<<GridMap.Gridmap.center_y<<";"<<GridMap.Gridmap.grid_size<<";"<<std::endl;
             for(int j =0;j<obstaclesMap.map.cols();j++){
@@ -1360,10 +1361,10 @@ void ConnectRRT::Create_Thread(ProbabilisticMap &GridMap
             {
                 if(PathMat.empty()){rout("empty .!");}
                 std::stringstream file_path;
-                file_path<<"/home/az/rcc/"<<init_time.str()<<"/"<<time.str()<<"/PathMapMat_Flipped.png";
+                file_path<<workspace_path<<"/log/"<<init_time.str()<<"/"<<time.str()<<"/PathMapMat_Flipped.png";
                 // cv::imwrite(file_path.str().c_str(),PathMat);
                 file_path.str("");
-                file_path<<"/home/az/rcc/"<<init_time.str()<<"/"<<time.str()<<"/Path.csv";
+                file_path<<workspace_path<<"/log/"<<init_time.str()<<"/"<<time.str()<<"/Path.csv";
                 std::ofstream outputfile;
                 outputfile.open(file_path.str().c_str());
                 for(int j =0;j<current_route.wps.size();j++){
@@ -1375,7 +1376,7 @@ void ConnectRRT::Create_Thread(ProbabilisticMap &GridMap
 
                 for(int tree_idx=0;tree_idx<get_trees.size();tree_idx++){
                     file_path.str("");
-                    file_path<<"/home/az/rcc/"<<init_time.str()<<"/"<<time.str()<<"/RRT_"<<tree_idx<<"_Path.csv";
+                    file_path<<workspace_path<<"/log/"<<init_time.str()<<"/"<<time.str()<<"/RRT_"<<tree_idx<<"_Path.csv";
                     std::ofstream outputfile;
                     outputfile.open(file_path.str().c_str());
                     for(int j =0;j<get_trees[tree_idx].size();j++){
@@ -1393,7 +1394,7 @@ void ConnectRRT::Create_Thread(ProbabilisticMap &GridMap
                 for(int i = 0 ; i<save_route.size();i++){
                     if(i==0){
                         file_path.str("");
-                        file_path<<"/home/az/rcc/"<<init_time.str()<<"/"<<time.str()<<"/simplified_Path.csv";
+                        file_path<<workspace_path<<"/log/"<<init_time.str()<<"/"<<time.str()<<"/simplified_Path.csv";
                         std::ofstream outputfile;
                         outputfile.open(file_path.str().c_str());
                         for(int j =0;j<save_route[0].size();j++){
@@ -1407,7 +1408,7 @@ void ConnectRRT::Create_Thread(ProbabilisticMap &GridMap
                     }
                     if(i==1){
                         file_path.str("");
-                        file_path<<"/home/az/rcc/"<<init_time.str()<<"/"<<time.str()<<"/rrt_Path.csv";
+                        file_path<<workspace_path<<"/log/"<<init_time.str()<<"/"<<time.str()<<"/rrt_Path.csv";
                         std::ofstream outputfile;
                         outputfile.open(file_path.str().c_str());
                         for(int j =0;j<save_route[1].size();j++){

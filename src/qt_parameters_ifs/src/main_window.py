@@ -187,8 +187,9 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "多旋翼无人机避障系统参数编辑器"))
         self.treeWidget.headerItem().setText(0, _translate("MainWindow", "参数"))
-        self.treeWidget.headerItem().setText(1, _translate("MainWindow", "数值"))
-        self.treeWidget.headerItem().setText(2, _translate("MainWindow", "备注"))
+        self.treeWidget.headerItem().setText(1, _translate("MainWindow", "数据类型"))
+        self.treeWidget.headerItem().setText(2, _translate("MainWindow", "数值"))
+        self.treeWidget.headerItem().setText(3, _translate("MainWindow", "备注"))
         self.pushButton_5.setText(_translate("MainWindow", "保存参数"))
         self.label.setText(_translate("MainWindow", "文件路径"))
         self.label_5.setText(_translate("MainWindow", "值"))

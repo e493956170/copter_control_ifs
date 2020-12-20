@@ -3,6 +3,8 @@
 #include <string>
 #include <cstring>
 #include <vector>
+#include <hash_map>
+
 using namespace std;
 
 struct CFG_J
@@ -11,16 +13,20 @@ struct CFG_J
     string value;//值
     CFG_J *next;//下个结点
 };
+#include <map> 
+#include <utility>
 class Config
 {
 private:
+    
     string file_name;//文件名字
+    std::map<string,std::pair<string,string>> cfg_list;
     CFG_J * head;//头指针
     int cfg_line;//配置行数
     int createHead();//创建一个链表头指针
     int freeJoin();//释放链表的节点
     int inputFile();//内存配置同步配置到文件
-    int joinHead(string key, string value);//将某个配置加入到链表中
+    int joinHead(string key, string value,string dtype);//将某个配置加入到链表中
 public:
     Config(string file_name);//构造函数
     ~Config();//析构函数
@@ -54,13 +60,13 @@ public:
 
 
 }copterInfo;
+
+#include <thread>
+
 class Parameters{
 public:
     Parameters(string file_path);
-    ~Parameters(){
-        delete(cfg);
-    }
-    Config *cfg;
+    std::shared_ptr<Config> cfg;
     bool load_success=false;
     double 	target_pos_x=0;
 	double 	target_pos_y=0;

@@ -8,25 +8,18 @@ Config::Config(string file_name)
     this->file_name = file_name;
     //默认一共0个配置
     this->cfg_line = 0;
-    if (createHead() == 0)
-    {
+    printf("ok here");
+
+    printf("ok here");
         //从文件读取全部配置 加入链表
-        getCFG();
+    getCFG();
         //打印全部配置
         //printCfg();
-    }
 }
 
 //析构函数
 Config::~Config()
 {
-    //释放链表的各个节点
-    freeJoin();
-    //释放头节点
-    if (this->head != NULL)
-    {
-        delete this->head;
-    }
 }
 
 //获取配置的总数
@@ -40,7 +33,8 @@ int Config::setCFG(string key, string value)
 {
     int rt = 0;
     //插入链表
-    joinHead(key, value);
+    string dtype = "";
+    joinHead(key, value, dtype);
     //同步到文件
     inputFile();
     return rt;
@@ -50,60 +44,19 @@ int Config::setCFG(string key, string value)
 int Config::inputFile()
 {
     int rt = 1;
-    if (this->head == NULL)
-    {
-        return rt;
-    }
-    //缓存字符串
-    string st;
-    //定义文件类型
-    ofstream outfile;
-    //打开文件方式
-    outfile.open(this->file_name , ios::out | ios::trunc);
-    // 遍历向文件写入用户输入的数据
-    CFG_J * p = this->head->next;
-    while (p != NULL)
-    {
-        //定义字符串
-        st = p->key + "=" + p->value;
-        //写入字符串
-        outfile << st << endl;
-        //移动指针
-        p = p->next;
-    }
-    //关闭文件
-    outfile.close();
+
     return rt;
 }
 
 //获取某项特定配置
 string Config::getCFG(string key)
 {
-    //默认找不到
-    string rt = "CANNOT FIND THIS CONFIG.";
-    if (this->head == NULL)
-    {
-        return rt;
+    if(cfg_list.find(key)!=cfg_list.end()){
+        return cfg_list[key].first;
+    }else{
+        return "未找到";
     }
-    //遍历抓取配置项
-    CFG_J *p = this->head->next;
-    while (p != NULL)
-    {
-        if (p->key==(key))
-        {
-            //捕捉到则返回值
-            rt = p->value;
-            cout<<key<<":"<<p->value<<endl;
-            break;
-        }else{
-        }
-        p = p->next;
-    }
-    if(rt == "CANNOT FIND THIS CONFIG."){
-        cout<<"Check for existence of key:\""<<key<<"\".";
-        rt="-1";
-    }
-    return rt;
+    
 }
 
 //从文件获取全部的配置
@@ -111,16 +64,16 @@ int Config::getCFG()
 {
     int rt = 0;
     //先清空链表
-    freeJoin();
+
     //配置总数为0
     this->cfg_line = 0;
     //定义缓存字符串变量
     string st;
-    string key, value;
+    string key, value, dtype;
     //定义文件变量
     ifstream infile;
-    string::size_type idx;
-    char *p = NULL, *q = NULL;
+    string::size_type idx,colon_idx;
+
     //打开文件
     infile.open(this->file_name);
     //遍历直到文件的最后
@@ -129,29 +82,42 @@ int Config::getCFG()
         //初始化缓存
         //取得一行配置
         //找不到等号则继续
+
+        //如果是注释那么跳过这一行
+        if(st.find("--")!=string::npos) continue;
+
+        //删去注释
         idx = st.find("#");         
         if (idx != string::npos)
         {
             st = st.substr(0, idx);
         }
+
+        //#找到数据类型的分隔符索引
+        colon_idx = st.find(":");
+        if (colon_idx == string::npos)
+        {
+            printf("数据类型缺失。\r\n");
+            continue;
+        }
+        //找到数据的分隔符索引
         idx = st.find("=");        
         if (idx == string::npos)
         {
             continue;
-        }
-
+        } 
         //截断字符串得到key和value字符串
-        key = st.substr(0, idx);
-        key.erase(0,key.find_first_not_of(" "));
+        dtype = st.substr(0,colon_idx);
+        key = st.substr(colon_idx+1, idx-colon_idx-1);
+        key.erase(colon_idx,key.find_first_not_of(" "));
         key.erase(key.find_last_not_of(" ")+1);
         value = st.substr(idx + 1,st.length()-idx);
         value.erase(0,value.find_first_not_of(" "));
         value.erase(value.find_last_not_of(" ")+1);
-        // cout<<st<<"_________________-;"<<key<<":"<<value<<endl;
+        cout<<dtype<<":"<<key<<":"<<value<<endl;
         //插入链表
-        joinHead(key,value);
+        joinHead(key,value,dtype);
         st = "";
-
     }
     //关闭文件
     infile.close();
@@ -159,100 +125,36 @@ int Config::getCFG()
 }
 
 //将配置插入内存链表
-int Config::joinHead(string key,string value)
+int Config::joinHead(string key,string value,string dtype)
 {
     int rt = 1;
-    if (this->head == NULL)
-    {
-        rt = 2;
-        return rt;
-    }
-    //定义移动指针
-    CFG_J * p = this->head;
-    CFG_J * cur = p->next;
-    while (cur != NULL)
-    {
-        //cout << cur->key << " " << key << " " << cur->key.compare(key) << endl;
-        //找到值则直接改变
-        if (cur->key.compare(key) == 0)
-        {
-            cur->value = value;
-            rt = 0;
-            break;
-        }
-        p = cur;
-        cur = p->next;
-    }
-    //找不到值则再最后插入
-    if (rt != 0)
-    {
-        CFG_J *q = new CFG_J();
-        q->key = key;
-        q->value = value;
-        q->next = NULL;
-        p->next = q;
-        //配置数自增
-        this->cfg_line ++;
-    }
+    cfg_list[key]=std::pair<string,string>(value,dtype);
+    cfg_line++;
     return rt;
 }
 
 //释放全部节点（除了头指针）
 int Config::freeJoin()
 {
-    int rt = 1;
-    //定义移动指针
-    CFG_J * p = this->head->next;
-    CFG_J * cur = p;
-    if (p == NULL)
-    {
-        return rt;
-    }
-    //遍历释放内存
-    while (cur != NULL)
-    {
-        p = cur->next;
-        delete cur;
-        cur = p;
-    }
-    //初始化头指针
-    this->head->next = NULL;
-    rt = 0;
-    return rt;
+
 }
 
 //打印所有的配置
 void Config::printCfg()
 {
-    if (this->head == NULL)
-    {
-        return;
-    }
-    //定义移动指针
-    CFG_J * p = this->head->next;
-    while (p != NULL)
-    {
-        cout << p->key << "=" << p->value << endl;
-        //移动指针
-        p = p->next;
-    }
+
 }
 
 //创建配置链表头指针
 int Config::createHead()
 {
-    int rt = 1;
-    CFG_J *p = new CFG_J();
-    p->key = "headkey";
-    p->value = "headvalue";
-    p->next = NULL;
-    this->head = p;
-    rt = 0;//没有问题
-    return rt;
+
 }
 
 Parameters::Parameters(string file_path){
-    cfg=new Config(file_path);
+    cfg = std::make_shared<Config>(Config(file_path));
+   
+    printf("%s\r\n",cfg->getCFG("config_title").c_str());
     if(cfg->getCFG("config_title")=="UAV_TEST_PLATFORM_SOFTWARE"){
         if(cfg->getCFG("config_version")=="0.1"){
             if(cfg->getCFG("author")=="ZhengZi"){
@@ -319,6 +221,6 @@ Parameters::Parameters(string file_path){
         }
 
     }else{
-        cout<<"Config title is wrong.Exiting.";
+        printf("Config title is wrong.Exiting.");
     }
 }

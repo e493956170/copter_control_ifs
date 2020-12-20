@@ -27,19 +27,21 @@ def addTreeitemClass(ui,title):
     QTreeWidgetItem(ui.treeWidget)
     ui.treeWidget.topLevelItem(ui.treeWidget.topLevelItemCount()-1).setText(0, _translate("MainWindow", title))
 
-def addTreeitemContent(ui,title,parameter,value,comment):
+def addTreeitemContent(ui,title,parameter,value,comment,dtype):
     _translate = QtCore.QCoreApplication.translate
     for i in range(ui.treeWidget.topLevelItemCount()):
         if title == ui.treeWidget.topLevelItem(i).text(0):
             for j in  range(ui.treeWidget.topLevelItem(i).childCount()):
                 if ui.treeWidget.topLevelItem(i).child(j).text(0) == parameter:
-                    ui.treeWidget.topLevelItem(i).child(j).setText(1,_translate("MainWindow",value))
-                    ui.treeWidget.topLevelItem(i).child(j).setText(2,_translate("MainWindow",comment))
+                    ui.treeWidget.topLevelItem(i).child(j).setText(1,_translate("MainWindow",dtype))
+                    ui.treeWidget.topLevelItem(i).child(j).setText(2,_translate("MainWindow",value))
+                    ui.treeWidget.topLevelItem(i).child(j).setText(3,_translate("MainWindow",comment))
                     pass
             QTreeWidgetItem(ui.treeWidget.topLevelItem(i))
             ui.treeWidget.topLevelItem(i).child(ui.treeWidget.topLevelItem(i).childCount()-1).setText(0,_translate("MainWindow",parameter))
-            ui.treeWidget.topLevelItem(i).child(ui.treeWidget.topLevelItem(i).childCount()-1).setText(1,_translate("MainWindow",value))
-            ui.treeWidget.topLevelItem(i).child(ui.treeWidget.topLevelItem(i).childCount()-1).setText(2,_translate("MainWindow",comment))
+            ui.treeWidget.topLevelItem(i).child(ui.treeWidget.topLevelItem(i).childCount()-1).setText(1,_translate("MainWindow",dtype))
+            ui.treeWidget.topLevelItem(i).child(ui.treeWidget.topLevelItem(i).childCount()-1).setText(2,_translate("MainWindow",value))
+            ui.treeWidget.topLevelItem(i).child(ui.treeWidget.topLevelItem(i).childCount()-1).setText(3,_translate("MainWindow",comment))
             ui.treeWidget.expandAll()
             return
     addTreeitemClass(ui,title)
@@ -60,9 +62,9 @@ def ClickToSaveFile(ui):
             value = ui.treeWidget.topLevelItem(i).child(j).text(1)
             comment = ui.treeWidget.topLevelItem(i).child(j).text(2)
             if comment == "":
-                content = parameter +'  =  ' + value +'\n'
+                content = dtype+":"+parameter +'  =  ' + value +'\n'
             else:
-                content = parameter +'  =  ' + value +'  '+ '#'+ comment + '\n'
+                content = dtype+":"+parameter +'  =  ' + value +'  '+ '#'+ comment + '\n'
             f.write(content)
     f.close()
     ui.label_2.setText("状态：参数已保存")
@@ -89,17 +91,23 @@ def ClickToLoadFile(ui):
                     if(comment_match):
                         comment = line[comment_match.span()[0]+1:-1]
                         value_match = re.search(r"=",line)
-                        parameter = line[0:value_match.span()[0]]
+
+                        dtype_match = re.search(r":",line)         
+                        dtype = line[0:dtype_match.span()[0]]
+                        parameter = line[dtype_match.span()[1]:value_match.span()[0]]
+            
                         value = line[value_match.span()[1]:comment_match.span()[0]]
                     else:
                         value_match = re.search(r"=",line)
-                        parameter = line[0:value_match.span()[0]]
+                        dtype_match = re.search(r":",line)         
+                        dtype = line[0:dtype_match.span()[0]]
+                        parameter = line[dtype_match.span()[1]:value_match.span()[0]]
                         value = line[value_match.span()[1]:-1]
-                    addTreeitemContent(ui,title,parameter,value,comment)
+                    addTreeitemContent(ui,title,parameter,value,comment,dtype)
         ui.label_2.setText("状态：参数已加载")
 
     except Exception as e:
-        ui.label_2.setText("状态：文件路径不存在")
+        ui.label_2.setText("状态：文件路径不存在,读取异常")
 
 def ClickToStartSim(ui):
     cmd = 'gnome-terminal -t "roscore" -x bash -c "rosrun rcc rcc -c {}"'.format(ui.lineEdit.text())
