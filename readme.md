@@ -1,4 +1,4 @@
-# copter_control_ifs 多旋翼无人机控制接口
+# copter_control_ifs 多旋翼无人机控制接口框架
 copter control interface with dji or mavlink devicce like px4/ardupilot
 适应大疆（未开发）和mavlink设备
 
@@ -9,7 +9,7 @@ A C++ based copter control interface to simplify the repeated work in copter con
 
 # FlightTaskManager 飞行任务管理器
 采用虚函数进行开发，方便拓展
-Flight tasks manager is develop to virtual funtion ,so it is easy to extend other motion group by using the api.More work will be done.
+Flight tasks manager based on virtual funtions ,so it is easy to extend other motion group by using the api.More work will be done.
 
 # RouteTracker 路径跟踪器
 纯跟踪算法
@@ -24,5 +24,17 @@ More visualiztion wrapper of rviz  is under working . Also ,the purpose of this 
 
 https://www.bilibili.com/video/BV1C7411f75E/
 
+#依赖 Requirements
+sudo apt install ros-melodic-desktop-full mavros opencv2 octomap python3 libboost-dev
+pip3 install pyqt5 osqp numpy scipy matplotlib
+
+
+#近期的更新 Recently Updates
+1、调整了配置文件的读取方式，现在会自动追踪名为"my_catkin_ws"的工作空间，并在其中读取配置文件了。2020年12月19日
+
+#下一步计划Next Plan
+1、解耦框架中的一些视觉模块的嵌入，轻化主程序。
+
+
 依赖于ROS、MAVROS、ROS_PCL、OPENCV2、OCTOMAP库等
-目前动力学优化部分代码未上传至gitee，如无需要删去这部分代码，即可进行避障飞行。
+目前动力学优化部分代码未上传至gitee，如无需要删去这部分代码，即可按照你的期望进行飞行。

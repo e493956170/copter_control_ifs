@@ -1,14 +1,13 @@
 #include "base/baseMethod.h"
 
-FLY_PLAN_T CoordinateTransform::local_NED_2_local_NED_Body(copter_local_pos_att_t attpos,FLY_PLAN_T fly_plan)
+FlyPlan CoordinateTransform::Local_NED_2_Local_NED_Body(UAVLocalPositionAndAttitude attpos,FlyPlan fly_plan)
 {
-	FLY_PLAN_T tmp;
-    tmp.wps.resize(fly_plan.wps.size());
+	FlyPlan ret;
+    ret.wps.resize(fly_plan.wps.size());
 //平移旋转矩阵
-// #pragma omp parallel for
     for (int i = 0 ;i<fly_plan.wps.size();i++){
         WP tmppt=tf(attpos.pos_x,attpos.pos_y,-angle_add(attpos.yaw,0),PT(fly_plan.wps[i].x,fly_plan.wps[i].y,0));
-        tmp.wps[i]=tmppt;
+        ret.wps[i]=tmppt;
         // rout("tx%f ty%f",ret2(0,0),ret2(1,0));
     }
 	/*
@@ -18,16 +17,16 @@ FLY_PLAN_T CoordinateTransform::local_NED_2_local_NED_Body(copter_local_pos_att_
 		|t|   |sinyaw   cosyaw |  |y|
         \ /   \                /  \ /
 	*/
-	return tmp;
+	return ret;
 }
 
-FLY_PLAN_T CoordinateTransform::local_NED_Body_2_local_NED(copter_local_pos_att_t attpos,FLY_PLAN_T fly_plan){
-    FLY_PLAN_T tmp;
-    tmp.wps.resize(fly_plan.wps.size());
+FlyPlan CoordinateTransform::Local_NED_Body_2_Local_NED(UAVLocalPositionAndAttitude attpos,FlyPlan fly_plan){
+    FlyPlan ret;
+    ret.wps.resize(fly_plan.wps.size());
 // #pragma omp parallel for
     for (int i = 0 ;i<fly_plan.wps.size();i++){
         WP tmppt=ft(-attpos.pos_x,-attpos.pos_y,angle_add(attpos.yaw,0),PT(fly_plan.wps[i].x,fly_plan.wps[i].y,0));
-        tmp.wps[i]=tmppt;
+        ret.wps[i]=tmppt;
         // rout("tx%f ty%f",ret2(0,0),ret2(1,0));
     }
     /*
@@ -37,28 +36,29 @@ FLY_PLAN_T CoordinateTransform::local_NED_Body_2_local_NED(copter_local_pos_att_
         |t|   |sinyaw   cosyaw |  |y|
         \ /   \                /  \ /
     */
-    return tmp;
+    return ret;
 }
 
-double __BASE_METHOD__::include_angle_calc(double new_angle,double old_angle){
-    double temp=0;
-    temp=old_angle-new_angle;
-    if(temp>M_PIl) temp=temp-2*M_PIl;
-    if(temp<-M_PIl) temp=temp+2*M_PIl;
-    return temp;
+double __BASE_METHOD__::include_angle_calc(const double &new_angle,const double & old_angle){
+    double ret=0;
+    ret=old_angle-new_angle;
+    if(ret>M_PIl) ret=ret-2*M_PIl;
+    if(ret<-M_PIl) ret=ret+2*M_PIl;
+    return ret;
 }
 
-double __BASE_METHOD__::angle_add(double op_angle,double change_val){
+
+double __BASE_METHOD__::angle_add(double op_angle,const double &change_val){
     op_angle+=change_val;
     while(op_angle>M_PIl) op_angle=op_angle-2*M_PIl;
     while(op_angle<-M_PIl) op_angle=op_angle+2*M_PIl;
     return op_angle;
 }
-double __BASE_METHOD__::rect_coord_to_angle(double x,double y){
+double __BASE_METHOD__::rect_coord_to_angle(const double & x,const double & y){
     return atan2(y,x);
 }
 
-WPS __BASE_METHOD__::bresenham( WP start, WP end){
+WPS __BASE_METHOD__::bresenham(const WP &  start,const WP & end){
 
     int dx, dy;			//横纵坐标间距
     int incr1, incr2;	//P_m增量

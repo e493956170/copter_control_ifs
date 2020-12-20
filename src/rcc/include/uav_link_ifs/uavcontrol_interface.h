@@ -9,9 +9,9 @@
 #include "geometry_msgs/Twist.h"
 #include "base/baseType.h"
 
-class UAVCONTROL_INTERFACE{
+class UAVControlInterface{
 public:
-	virtual void setPositionLocalNED(velocity_Local_NED_t vel_cmd)=0;
+	virtual void setPositionLocalNED(VelocityLocalNED vel_cmd)=0;
 	virtual bool _link_down_get()=0;
 	virtual bool set_mode(std::string mode)=0;
 	virtual bool set_arm(bool arm)=0;
@@ -22,14 +22,14 @@ public:
 	virtual bool update_pose()=0;
 	virtual std::string get_mode()=0;
 
-	copter_local_pos_att_t get_pose() {return copter_local_pos_att;}
+	UAVLocalPositionAndAttitude get_pose() {return copter_local_pos_att;}
 protected:
-	copter_local_pos_att_t copter_local_pos_att;
+	UAVLocalPositionAndAttitude copter_local_pos_att;
 	Parameters *_p;
-	UNIVERSAL_STATE *_unity;
-	velocity_Local_Body_NED_t control_vel_cmd;
-	velocity_Local_Body_NED_t avoid_vel_cmd;
-	velocity_Local_Body_NED_t vel_cmd;
+	UniversalState *_unity;
+	VelocityLocalBodyNED control_vel_cmd;
+	VelocityLocalBodyNED avoid_vel_cmd;
+	VelocityLocalBodyNED vel_cmd;
 };
 
 

@@ -5,13 +5,13 @@
     雷达数据处理线程
 
 */
-void LIDAR_DATA_PROCESS::Create_Thread(){
+void LidarDataProcess::Create_Thread(){
 
     std::stringstream ss;ss<<std::this_thread::get_id();
 
     // rout("point_process_thread started .Thead id: %s",ss.str().c_str());
         // rout("new Data %d",_unity->new_cloud_avaliable_);
-    copter_local_pos_att_t att_pos_copy_copy = att_pos_copy;
+    UAVLocalPositionAndAttitude att_pos_copy_copy = att_pos_copy;
     _unity->new_cloud_avaliable_=false;
     if(cloud.empty()&&edgecloud.empty())return ;
     PTC d;
@@ -27,7 +27,7 @@ void LIDAR_DATA_PROCESS::Create_Thread(){
     _unity->new_map_avaliable=true;
 }
 
-void LIDAR_DATA_PROCESS::lidarCloudHandler(const sensor_msgs::PointCloudConstPtr &input){
+void LidarDataProcess::lidarCloudHandler(const sensor_msgs::PointCloudConstPtr &input){
 
     if(!_unity->first_data_get) return;
 
@@ -63,7 +63,7 @@ void LIDAR_DATA_PROCESS::lidarCloudHandler(const sensor_msgs::PointCloudConstPtr
     }
     _unity->new_cloud_avaliable_=true;
 
-    std::thread _point_process_thread(&LIDAR_DATA_PROCESS::Create_Thread,this);
+    std::thread _point_process_thread(&LidarDataProcess::Create_Thread,this);
 
     _point_process_thread.join();
 

@@ -2,12 +2,12 @@
 
 
 
-int FIGHT_TASK_WP_POINT_PURE_PERSUIT::Pure_pusuit(FLY_PLAN_T &fly_plan
+int FIGHT_TASK_WP_POINT_PURE_PERSUIT::Pure_pusuit(FlyPlan &fly_plan
                                 ,double &target_x
                                 ,double &target_y
                                 ,double &target_yaw){
 
-    copter_local_pos_att_t attpos =_uav_ifs->get_pose();
+    UAVLocalPositionAndAttitude attpos =_uav_ifs->get_pose();
 
     double k=_p->Pure_Pursuit_K;
     double v = sqrt(pow(_uav_ifs->get_pose().pos_vx,2)+pow(_uav_ifs->get_pose().pos_vy,2));
@@ -51,7 +51,7 @@ FLIGHT_TASK* FIGHT_TASK_WP_POINT_PURE_PERSUIT::loop(){
     double last_x=_uav_ifs->get_pose().pos_x,last_y=_uav_ifs->get_pose().pos_y,last_z=_uav_ifs->get_pose().pos_z,last_yaw=_uav_ifs->get_pose().yaw;
     _unity->flight_task_started=true;
     while(ros::ok()){
-        if(_unity->copter_state==UNIVERSAL_STATE::COPTER_STATE::STATE_LOITER){
+        if(_unity->copter_state==UniversalState::CopterState::STATE_LOITER){
             _target_pos_flow->x = last_x;
             _target_pos_flow->y = last_y;
             _target_pos_flow->y = last_z;

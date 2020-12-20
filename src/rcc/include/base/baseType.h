@@ -61,12 +61,13 @@ public:
 		wps.push_back(wp);
 	}
 	int current_idx = 0;
-}FLY_PLAN_T;
+}FlyPlan;
 
 
 
 #define rout ROS_INFO
-class positon_Local_NED_t{
+
+class PositonLocalNED{
 public:
 	double x;
 	double y;
@@ -74,7 +75,7 @@ public:
 	double yaw;
 	int type=0;
 };
-class positon_with_velocity_Local_NED_t{
+class PositionWithVelocityLocalNED{
 public:
 	double x;
 	double y;
@@ -84,7 +85,7 @@ public:
 	int type=1;
 };
 
-class velocity_Local_NED_t{
+class VelocityLocalNED{
 public:
 	double vx=0;
 	double vy=0;
@@ -92,7 +93,7 @@ public:
 	double yaw_rate=0;
 	int type=3;
 };
-class vel_acc_Local_NED_t{
+class VelAccLocalNED{
 public:
 	double vx=0;
 	double vy=0;
@@ -103,31 +104,31 @@ public:
 	double yaw_rate=0;
 	int type=3;
 };
-class positon_Local_Body_NED_t{
+class PositonLocalBodyNED{
 public:
 	double x;
 	double y;
 	double z;
 	double yaw;
 };
-class velocity_Local_Body_NED_t{
+class VelocityLocalBodyNED{
 	public:
 	double vx=0;
 	double vy=0;
 	double vz=0;
 	double yaw_rate=0;
 
-	velocity_Local_Body_NED_t  operator+ (const velocity_Local_Body_NED_t &p1){
-		velocity_Local_Body_NED_t ret;
+	VelocityLocalBodyNED  operator+ (const VelocityLocalBodyNED &p1){
+		VelocityLocalBodyNED ret;
 		ret.vx=p1.vx+this->vx;
 		ret.vy=p1.vy+this->vx;
 		ret.vz=p1.vz+this->vx;
 		ret.yaw_rate=p1.yaw_rate+this->yaw_rate;
 		return ret;
 	}
-	velocity_Local_Body_NED_t  operator- (const velocity_Local_Body_NED_t &p1){
+	VelocityLocalBodyNED  operator- (const VelocityLocalBodyNED &p1){
 
-		velocity_Local_Body_NED_t ret;
+		VelocityLocalBodyNED ret;
 
 		ret.vx=this->vx-p1.vx;
 		ret.vy=this->vx-p1.vx;
@@ -138,7 +139,7 @@ class velocity_Local_Body_NED_t{
 	}
 };
 
-class copter_local_pos_att_t{
+class UAVLocalPositionAndAttitude{
 public:
 	double pos_x=0;
 	double pos_y=0;

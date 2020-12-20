@@ -16,9 +16,13 @@
 #include <chrono>
 #include <algorithm>  
 #include <iomanip>
-using namespace cv;
 
-int RRT_Base::get_nearst_point_index(Tree_t trees,TreeNode_t new_point){
+extern std::shared_ptr<visualize_image> path_map_vis;
+extern std::shared_ptr<visualize_image> origin_map_vis;
+extern std::shared_ptr<visualize_image> edge_map_vis;
+
+
+int RRTBase::get_nearst_point_index(Tree_t trees,TreeNode_t new_point){
     double min_dist = calc_dist(trees[0],new_point);
     int min_dist_index = 0;
     // int area_x = new_point.x/5;
@@ -36,7 +40,7 @@ int RRT_Base::get_nearst_point_index(Tree_t trees,TreeNode_t new_point){
     return min_dist_index;
 }
 
-RRT_Base::TreeNode_t RRT_Base::get_nearst_point(Tree_t trees,TreeNode_t new_point){
+RRTBase::TreeNode_t RRTBase::get_nearst_point(Tree_t trees,TreeNode_t new_point){
 
     double min_dist = calc_dist(trees[0],new_point);
     int min_dist_index = 0;
@@ -54,7 +58,7 @@ RRT_Base::TreeNode_t RRT_Base::get_nearst_point(Tree_t trees,TreeNode_t new_poin
     return trees[min_dist_index];
 }
 
-RRT_Base::TreeNode_t RRT_Base::get_nearst_point(Tree_t trees,TreeNode_t new_point,TreeNode_t target){
+RRTBase::TreeNode_t RRTBase::get_nearst_point(Tree_t trees,TreeNode_t new_point,TreeNode_t target){
     double min_dist = calc_dist(trees[0],new_point);
     min_dist+=calc_dist(trees[0],target);
     int min_dist_index = 0;
@@ -70,13 +74,13 @@ RRT_Base::TreeNode_t RRT_Base::get_nearst_point(Tree_t trees,TreeNode_t new_poin
     return trees[min_dist_index];
 }
 
-double RRT_Base::calc_grow_theta(TreeNode_t cloest_point,TreeNode_t new_point){
+double RRTBase::calc_grow_theta(TreeNode_t cloest_point,TreeNode_t new_point){
     return atan2(new_point.x-cloest_point.x,new_point.y-cloest_point.y);
 }
-double RRT_Base::calc_grow_theta(WP cloest_point,WP new_point){
+double RRTBase::calc_grow_theta(WP cloest_point,WP new_point){
     return atan2(new_point.x-cloest_point.x,new_point.y-cloest_point.y);
 }
-RRT_Base::TreeNode_t RRT_Base::extend_a_step(TreeNode_t cloest_point,double step_size,double rad){
+RRTBase::TreeNode_t RRTBase::extend_a_step(TreeNode_t cloest_point,double step_size,double rad){
     cloest_point.x+=step_size*sin(rad);
     cloest_point.y+=step_size*cos(rad);
     cloest_point.z=_p->target_pos_z;
@@ -85,7 +89,7 @@ RRT_Base::TreeNode_t RRT_Base::extend_a_step(TreeNode_t cloest_point,double step
 }
 
 
-bool RRT_Base::single_point_check(WP newPoint ,OBSTACLE_GRID_MAP  &obstaclesMap){
+bool RRTBase::single_point_check(WP newPoint ,OBSTACLE_GRID_MAP  &obstaclesMap){
     if(obstaclesMap((int)newPoint.y,(int)newPoint.x)>0) {
         return false;
         }
@@ -93,7 +97,7 @@ bool RRT_Base::single_point_check(WP newPoint ,OBSTACLE_GRID_MAP  &obstaclesMap)
 }
 
 
-bool RRT_Base::check_if_path_ok(TreeNode_t cloest_point,TreeNode_t new_point,OBSTACLE_GRID_MAP &obstaclesMap){
+bool RRTBase::check_if_path_ok(TreeNode_t cloest_point,TreeNode_t new_point,OBSTACLE_GRID_MAP &obstaclesMap){
 
     auto grid_size = obstaclesMap.grid_size;
 //转化为栅格坐标
@@ -121,7 +125,7 @@ bool RRT_Base::check_if_path_ok(TreeNode_t cloest_point,TreeNode_t new_point,OBS
 
 
 
-bool RRT_Base::check_if_path_ok(WP cloest_point,WP new_point,OBSTACLE_GRID_MAP &obstaclesMap){
+bool RRTBase::check_if_path_ok(WP cloest_point,WP new_point,OBSTACLE_GRID_MAP &obstaclesMap){
 
     auto grid_size = obstaclesMap.grid_size;
 //转化为栅格坐标
@@ -147,14 +151,14 @@ bool RRT_Base::check_if_path_ok(WP cloest_point,WP new_point,OBSTACLE_GRID_MAP &
 }
 
 //step5
-bool RRT_Base::check_if_reached_goal(TreeNode_t goal_point,TreeNode_t new_point,double threshold){
+bool RRTBase::check_if_reached_goal(TreeNode_t goal_point,TreeNode_t new_point,double threshold){
     if(calc_dist(goal_point,new_point)<threshold)
         return true;
     else
         return false;
 }
 //step6
-bool RRT_Base::check_if_new_point_too_close_to_other_points(Tree_t trees,TreeNode_t new_point,double threshold,int skip_idx){
+bool RRTBase::check_if_new_point_too_close_to_other_points(Tree_t trees,TreeNode_t new_point,double threshold,int skip_idx){
     for(int i=0;i<trees.size();i++){
         if(i==skip_idx)continue;
         if(calc_dist(trees[i],new_point)<threshold){
@@ -166,7 +170,7 @@ bool RRT_Base::check_if_new_point_too_close_to_other_points(Tree_t trees,TreeNod
 
 
 
-WPS RRT_Base::get_rrt_path(Tree_t &src_trees){
+WPS RRTBase::get_rrt_path(Tree_t &src_trees){
     
     WPS tmp;
     int father_index =(src_trees.end()-1)->father_index;
@@ -190,7 +194,7 @@ WPS RRT_Base::get_rrt_path(Tree_t &src_trees){
 }
 
 
-WPS RRT_Base::get_rrt_path(Tree_t &first_tree,Tree_t &sec_tree){
+WPS RRTBase::get_rrt_path(Tree_t &first_tree,Tree_t &sec_tree){
     
     WPS tmp;
     int father_index =(first_tree.end()-1)->father_index;
@@ -212,7 +216,7 @@ WPS RRT_Base::get_rrt_path(Tree_t &first_tree,Tree_t &sec_tree){
 
 }
 
-void RRT_Base::simplify_rrt_trees(WPS &path,OBSTACLE_GRID_MAP &obstaclesMap){
+void RRTBase::simplify_rrt_trees(WPS &path,OBSTACLE_GRID_MAP &obstaclesMap){
     WPS tmp_path;
     tmp_path.push_back(path[0]);
     
@@ -235,7 +239,7 @@ void RRT_Base::simplify_rrt_trees(WPS &path,OBSTACLE_GRID_MAP &obstaclesMap){
     }
     path=tmp_path;
 }
-bool CONNECT_RRT::Check_If_Target_OK(OBSTACLE_GRID_MAP &obstaclesMap,FLY_PLAN_T &current_route){
+bool ConnectRRT::Check_If_Target_OK(OBSTACLE_GRID_MAP &obstaclesMap,FlyPlan &current_route){
 
 	WP WayPoint(_p->target_pos_x/obstaclesMap.grid_size+obstaclesMap.center_x,_p->target_pos_y/obstaclesMap.grid_size+obstaclesMap.center_y,0);
 	double  length = 0.4;
@@ -265,9 +269,9 @@ bool CONNECT_RRT::Check_If_Target_OK(OBSTACLE_GRID_MAP &obstaclesMap,FLY_PLAN_T 
 
 
 
-CONNECT_RRT::RRT_STATE_C CONNECT_RRT::minimumsnap_calc(
+ConnectRRT::RRT_STATE_C ConnectRRT::minimumsnap_calc(
   
-                             copter_local_pos_att_t attpos
+                             UAVLocalPositionAndAttitude attpos
                             ,WPS &path_input
                             ,WPS &path_output
                             )
@@ -392,7 +396,7 @@ public:
 
 };
 
-WPS CONNECT_RRT::get_RRT_Path(Tree_t RRTtree){
+WPS ConnectRRT::get_RRT_Path(Tree_t RRTtree){
     WPS path;
     int last_idx = RRTtree.path_end_idx;
     while(last_idx>-1){
@@ -402,7 +406,7 @@ WPS CONNECT_RRT::get_RRT_Path(Tree_t RRTtree){
     return path;
 }
 
-WPS CONNECT_RRT::combine_two_rrt_path(Tree_t RRTtree1,Tree_t RRTtree2){
+WPS ConnectRRT::combine_two_rrt_path(Tree_t RRTtree1,Tree_t RRTtree2){
     WPS path;
 
     WPS path1=get_RRT_Path(RRTtree1);
@@ -418,10 +422,10 @@ WPS CONNECT_RRT::combine_two_rrt_path(Tree_t RRTtree1,Tree_t RRTtree2){
     return path;
 }
 
-CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan(
-                                 copter_local_pos_att_t att_pos_copy      
+ConnectRRT::RRT_STATE_C ConnectRRT::plan(
+                                 UAVLocalPositionAndAttitude att_pos_copy      
                                 ,OBSTACLE_GRID_MAP &obstaclesMap
-                                ,FLY_PLAN_T &current_route
+                                ,FlyPlan &current_route
                                 ,cv::Mat &Path
                                 ,std::vector<Tree_t> &get_trees
                                 ){
@@ -458,7 +462,8 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan(
     {
         cv::Mat tmp;
         cv::flip(img,tmp,0);
-        cv::imshow("Path_map",tmp);
+        // cv::imshow("Path_map",tmp);
+        path_map_vis->push_to_rviz(tmp);
     }
  
     uint64_t iter_cnt=0;
@@ -643,13 +648,14 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan(
     if(_p->show_path_map){
         cv::flip(img,img,0);
         Path = img;
-        cv::imshow("Path_map",img);
+        // cv::imshow("Path_map",img);
+        path_map_vis->push_to_rviz(img);
         cv::waitKey(1);
     }
 	return RRT_STATE_C::FOUND_AVALIABLE_PATH;
 }
 
-CONNECT_RRT::Tree_t CONNECT_RRT::rrt_to_point(Tree_t RRTtree,TreeNode_t target,OBSTACLE_GRID_MAP &obstaclesMap){
+ConnectRRT::Tree_t ConnectRRT::rrt_to_point(Tree_t RRTtree,TreeNode_t target,OBSTACLE_GRID_MAP &obstaclesMap){
     uint32_t iter_cnt=0;
     uint32_t iter=0;
     auto start = RRTtree.get_root_node();
@@ -701,7 +707,7 @@ CONNECT_RRT::Tree_t CONNECT_RRT::rrt_to_point(Tree_t RRTtree,TreeNode_t target,O
     return RRTtree;
 }
 
-std::vector<int> CONNECT_RRT::find_all_son_index(Tree_t RRTtree,int start_index,std::vector<int>list,bool *finded_mask){
+std::vector<int> ConnectRRT::find_all_son_index(Tree_t RRTtree,int start_index,std::vector<int>list,bool *finded_mask){
 
     for(int i = 0;i<RRTtree.size();i++){ //遍历
         if(finded_mask[i]) continue;//如已查过则跳过，这是为了避免多次检查，可能存在重复的工作
@@ -717,7 +723,7 @@ std::vector<int> CONNECT_RRT::find_all_son_index(Tree_t RRTtree,int start_index,
 }
 
 
-CONNECT_RRT::Tree_t CONNECT_RRT::trim_tree(Tree_t RRTtree,OBSTACLE_GRID_MAP &obstaclesMap){
+ConnectRRT::Tree_t ConnectRRT::trim_tree(Tree_t RRTtree,OBSTACLE_GRID_MAP &obstaclesMap){
 
     
     int *change_of_tree_index = new int[RRTtree.size()]();
@@ -785,10 +791,10 @@ CONNECT_RRT::Tree_t CONNECT_RRT::trim_tree(Tree_t RRTtree,OBSTACLE_GRID_MAP &obs
     return RRTtree; //返回
 }
 
-CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan_online(
-                                 copter_local_pos_att_t att_pos_copy      
+ConnectRRT::RRT_STATE_C ConnectRRT::plan_online(
+                                 UAVLocalPositionAndAttitude att_pos_copy      
                                 ,OBSTACLE_GRID_MAP &obstaclesMap
-                                ,FLY_PLAN_T &current_route
+                                ,FlyPlan &current_route
                                 ,cv::Mat &Path
                                 ,std::vector<Tree_t> &get_trees
                                 ,std::vector<WPS> &save_route
@@ -828,7 +834,8 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan_online(
     {
         cv::Mat tmp;
         cv::flip(img,tmp,0);
-        cv::imshow("Path_map",tmp);
+        // cv::imshow("Path_map",tmp);
+        path_map_vis->push_to_rviz(tmp);
     }
  
     uint64_t iter_cnt=0;
@@ -1092,7 +1099,8 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan_online(
     if(_p->show_path_map){
         cv::flip(img,img,0);
         Path = img;
-        cv::imshow("Path_map",img);
+        // cv::imshow("Path_map",img);
+        path_map_vis->push_to_rviz(img);
         cv::waitKey(1);
     }
 	return RRT_STATE_C::FOUND_AVALIABLE_PATH;
@@ -1100,22 +1108,22 @@ CONNECT_RRT::RRT_STATE_C CONNECT_RRT::plan_online(
 
 
 
-void CONNECT_RRT::set_rrt(){
-    grow_status=GROW_STATUS::rrt;
+void ConnectRRT::set_rrt(){
+    grow_status=GrowStatus::rrt;
 }
 
-void CONNECT_RRT::set_direct(){
-    grow_status=GROW_STATUS::direct;
+void ConnectRRT::set_direct(){
+    grow_status=GrowStatus::direct;
 }
-bool CONNECT_RRT::check_if_rrt_status(){
-    if(grow_status==GROW_STATUS::rrt){
+bool ConnectRRT::check_if_rrt_status(){
+    if(grow_status==GrowStatus::rrt){
         return true;
     }
     else{
         return false;
     }
 }
-void CONNECT_RRT::get_sampling_points(TreeNode_t &new_point,const TreeNode_t start ,const TreeNode_t end){
+void ConnectRRT::get_sampling_points(TreeNode_t &new_point,const TreeNode_t start ,const TreeNode_t end){
 
     double rand_num_x = (*rd)()%100000000/100000000.;
     double rand_num_y = (*rd)()%100000000/100000000.;
@@ -1133,7 +1141,7 @@ void CONNECT_RRT::get_sampling_points(TreeNode_t &new_point,const TreeNode_t sta
     new_point.y=y;
 }
 
-void CONNECT_RRT::get_sampling_points(TreeNode_t &new_point){
+void ConnectRRT::get_sampling_points(TreeNode_t &new_point){
 
     double rand_num_x = (*rd)()%100000000/100000000.;
     double rand_num_y = (*rd)()%100000000/100000000.;
@@ -1149,7 +1157,7 @@ void CONNECT_RRT::get_sampling_points(TreeNode_t &new_point){
 }
 
 
-CONNECT_RRT::CONNECT_RRT(std::random_device *_rd_,std::mutex *_mtx_,Parameters *_p_,UNIVERSAL_STATE *_unity_,UAVCONTROL_INTERFACE *_mavlink_p_,PROBABILISTIC_MAP *_grid_map_):RRT_Base(_rd_,_mtx_,_p_,_unity_,_mavlink_p_,_grid_map_){
+ConnectRRT::ConnectRRT(std::random_device *_rd_,std::mutex *_mtx_,Parameters *_p_,UniversalState *_unity_,UAVControlInterface *_mavlink_p_,ProbabilisticMap *_grid_map_):RRTBase(_rd_,_mtx_,_p_,_unity_,_mavlink_p_,_grid_map_){
     
     ros::NodeHandle nh;
     minimumsnap_client = std::make_shared<ros::ServiceClient>(nh.serviceClient<minimumsnap_route::service>("minimumsnap_route/minimumsnap_calc_request"));
@@ -1179,8 +1187,8 @@ CONNECT_RRT::CONNECT_RRT(std::random_device *_rd_,std::mutex *_mtx_,Parameters *
 }
 
 
-void CONNECT_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
-                            ,FLY_PLAN_T &current_route)
+void ConnectRRT::Create_Thread(ProbabilisticMap &GridMap
+                            ,FlyPlan &current_route)
 {
     ros::Rate *loop_rate = new ros::Rate(20);
     RRT_STATE_C RRT_Calc_State = RRT_STATE_C::READY_TO_CALC;
@@ -1237,7 +1245,8 @@ void CONNECT_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
         cv::dilate(img, tar1, element);
 
         if(_p->show_rt_map){
-            cv::imshow("Origin_map",tar1);
+            // cv::imshow("Origin_map",tar1);
+            origin_map_vis->push_to_rviz(tar1);
         }
         // rout("hellow ");
         if(!_unity->flight_task_started) continue;
@@ -1263,9 +1272,9 @@ void CONNECT_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
         }
         // 如果有新地图，那就把当前的路径放进去检查一下有没有碰了,如果有的话先停下来,如果已经是二次尝试状态，那就跳过这个过程
         bool current_route_ocllision = false;
-        copter_local_pos_att_t att_pos_copy = _mavlink->get_pose();
+        UAVLocalPositionAndAttitude att_pos_copy = _mavlink->get_pose();
         // check_radius_vis->push_to_rviz(WPS(WP(att_pos_copy.pos_x,att_pos_copy.pos_y,att_pos_copy.pos_z)));
-        if(RRT_Calc_State != RRT_Base::RRT_STATE_C::TRY_AGAIN)
+        if(RRT_Calc_State != RRTBase::RRT_STATE_C::TRY_AGAIN)
         {
             // rout("current_route.size()%d",current_route.size());
             if(current_route.size()>1)//当从未进行过规划时跳过
@@ -1280,7 +1289,7 @@ void CONNECT_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
                         {
                             mtx->lock();
                             rout("Current route ocllision check failed in Danger zone.");
-                            _unity->copter_state = UNIVERSAL_STATE::COPTER_STATE::STATE_LOITER;
+                            _unity->copter_state = UniversalState::CopterState::STATE_LOITER;
                             mtx->unlock();
                             current_route_ocllision = true; 
                         }
@@ -1309,7 +1318,7 @@ void CONNECT_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
         {
             case RRT_STATE_C::FOUND_AVALIABLE_PATH:
                 mtx->lock();
-                _unity->copter_state = UNIVERSAL_STATE::COPTER_STATE::STATE_AUTO;
+                _unity->copter_state = UniversalState::CopterState::STATE_AUTO;
                 mtx->unlock();
                 RRT_Calc_State=RRT_STATE_C::READY_TO_CALC;
                 RRT_Faided_Cnt=0;
@@ -1331,14 +1340,14 @@ void CONNECT_RRT::Create_Thread(PROBABILISTIC_MAP &GridMap
                     RRT_Calc_State=RRT_STATE_C::TRY_AGAIN;
                 }
                 mtx->lock();
-                 _unity->copter_state = UNIVERSAL_STATE::COPTER_STATE::STATE_LOITER;
+                 _unity->copter_state = UniversalState::CopterState::STATE_LOITER;
                 mtx->unlock();
             break;
             case RRT_STATE_C::MINIMUMSNAP_FAILED:
             case RRT_STATE_C::MINIMUMSNAP_SRV_TIME_OUT_FAILED:
             case RRT_STATE_C::OTHER_FAILED:
                 mtx->lock();
-                _unity->copter_state = UNIVERSAL_STATE::COPTER_STATE::STATE_LOITER;
+                _unity->copter_state = UniversalState::CopterState::STATE_LOITER;
                 mtx->unlock();
                 rout("Find a avaliable Path Failed .Ready to Try Again.");
                 RRT_Calc_State=RRT_STATE_C::TRY_AGAIN;

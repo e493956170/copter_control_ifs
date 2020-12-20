@@ -118,14 +118,14 @@ public:
 
 #ifndef _UNIVERSAL_STATE
 #define _UNIVERSAL_STATE
-class UNIVERSAL_STATE{
+class UniversalState{
 public:
     bool new_map_avaliable=false;
     bool new_cloud_avaliable_=false;
     bool first_data_get = false;
     int current_idx=0;
     bool flight_task_started = false;
-    enum class COPTER_STATE{
+    enum class CopterState{
         STATE_AUTO,
         STATE_LOITER,
         STATE_AVOIDING,

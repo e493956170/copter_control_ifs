@@ -31,7 +31,7 @@ public:
 class FIGHT_TASK_WP_POINT_PURE_PERSUIT:public FLIGHT_TASK{
     std::string planning_method="";
     HLWP target_wp;
-    int Pure_pusuit(FLY_PLAN_T &fly_plan ,double &target_x,double &target_y,double &target_yaw);
+    int Pure_pusuit(FlyPlan &fly_plan ,double &target_x,double &target_y,double &target_yaw);
 public:
 
     FIGHT_TASK_WP_POINT_PURE_PERSUIT(HLWP wp,std::string _planning_method):target_wp(wp),planning_method(_planning_method){}

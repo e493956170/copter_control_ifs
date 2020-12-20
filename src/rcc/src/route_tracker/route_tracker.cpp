@@ -13,7 +13,7 @@
 #include <tf/tf.h>
 
 
-bool PID_2D_control::update_latest_local_pos()
+bool VelControlTracker2D::update_latest_local_pos()
 {   
     if(_mavlink!=nullptr){
         latest_x=_mavlink->get_pose().pos_x;
@@ -25,7 +25,7 @@ bool PID_2D_control::update_latest_local_pos()
 }
 
 
-bool PID_2D_control::get_2d_control_speed(positon_Local_NED_t &input_pos_flow,velocity_Local_NED_t &output_flow){
+bool VelControlTracker2D::get_2d_control_speed(PositonLocalNED &input_pos_flow,VelocityLocalNED &output_flow){
 
     
     double &target_x=input_pos_flow.x;
@@ -70,7 +70,7 @@ bool PID_2D_control::get_2d_control_speed(positon_Local_NED_t &input_pos_flow,ve
     return true;
 }
 
-void PID_2D_control::Create_Thread(positon_Local_NED_t &input_pos_flow){
+void VelControlTracker2D::Create_Thread(PositonLocalNED &input_pos_flow){
     
     ros::Rate *loop_rate = new ros::Rate(20);
     std::stringstream ss;ss<<"Path_PID_CONTROL_THREAD Started.Thread ID:"<<std::this_thread::get_id();rout("%s",ss.str().c_str());
@@ -93,7 +93,7 @@ void PID_2D_control::Create_Thread(positon_Local_NED_t &input_pos_flow){
             }
             
             update_latest_local_pos();
-            velocity_Local_NED_t output_flow;
+            VelocityLocalNED output_flow;
             get_2d_control_speed(input_pos_flow,output_flow);
             get_altitude_speed(input_pos_flow.z,output_flow.vz);
             _mavlink->setPositionLocalNED(output_flow);

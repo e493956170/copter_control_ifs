@@ -28,45 +28,52 @@
 std::mutex mtx;
 std::random_device rd;
 
-UNIVERSAL_STATE unity_state;
-#define rout ROS_INFO
-#define PROJECT_NAME "my_catkin_ws"
+std::shared_ptr<visualize_image> path_map_vis;
+std::shared_ptr<visualize_image> origin_map_vis;
+std::shared_ptr<visualize_image> edge_cloud_vis;
 
-void spinWrapper(){
-	std::stringstream ss;ss<<std::this_thread::get_id();
-	rout("rosSpin_thread started .Thead id: %s",ss.str().c_str());
-	ros::spin();
-}
+UniversalState unity_state;
+#define rout ROS_INFO   //简化打印指令
+#define PROJECT_NAME "my_catkin_ws"     //项目名称
+#define STANDARD_CONFIG_FILE_SUFFIX "/settings/config.txt"         //项目配置文件标准地址
 
 
-void _copter_control_thread_Wrapper(PID_2D_control *p,positon_Local_NED_t &input_pos_flow){
+//轨迹控制包装函数
+void _copter_control_thread_Wrapper(VelControlTracker2D *p,PositonLocalNED &input_pos_flow){
 	p->Create_Thread(input_pos_flow);
 }
-void _rrt_thread_Wrapper(CONNECT_RRT *p
-								,PROBABILISTIC_MAP &GridMap
-								,FLY_PLAN_T &current_route)
-{
+
+//路径规划包装函数
+void _rrt_thread_Wrapper(ConnectRRT *p
+								,ProbabilisticMap &GridMap
+								,FlyPlan &current_route){
 	p->Create_Thread(GridMap,current_route);
 }
 
-void _waypointsMangaerThread_Wrapper(WP_UPDATER *p,FLY_PLAN_T &fly_plan,positon_Local_NED_t &target_pos_flow){
+//航点更新包装函数
+void _waypointsMangaerThread_Wrapper(WayPointsUpdater *p,FlyPlan &fly_plan,PositonLocalNED &target_pos_flow){
 	p->Create_Thread(fly_plan,target_pos_flow);
 }
 
-void system_init(Parameters *_p_,UNIVERSAL_STATE *_unity_,UAVCONTROL_INTERFACE *_uav_ifs_,positon_Local_NED_t *target_pos_flow,FLY_PLAN_T *_sub_fly_wps_){
+void system_init(Parameters *_p_,UniversalState *_unity_,UAVControlInterface *_uav_ifs_,PositonLocalNED *target_pos_flow,FlyPlan *fly_plan){
 	_p=_p_;
 	_unity=_unity_;
 	_uav_ifs=_uav_ifs_;
 	_target_pos_flow=target_pos_flow;
-	_sub_fly_wps=_sub_fly_wps_;
+	_sub_fly_wps=fly_plan;
 }	
 
 int main (int argc,char **argv)
 {
-	ros::init (argc,argv,"RCC");
+/**
+ 	@brief 初始化ROS节点
+**/
+	ros::init (argc,argv,"RCC"); 
 
+/**
+ 	@brief 加载配置文件
 
-//加载配置文件
+**/
 	string file_path;
 	if(argc >2){
 		string marker=argv[1];
@@ -89,7 +96,7 @@ int main (int argc,char **argv)
 
 		}
 		file_path = file_path.substr(0,file_path.find_last_of("/"));
-		file_path = file_path + "/settings/config.txt";
+		file_path = file_path + STANDARD_CONFIG_FILE_SUFFIX;
 	}
 
 	printf("配置文件路径为：%s\r\n",file_path.c_str());
@@ -101,73 +108,80 @@ int main (int argc,char **argv)
 		return 0;
 	}
 	Parameters parameters(file_path);
-	if(!parameters.load_success) return 0;
+	if(!parameters.load_success) { rout("参数配置文件加载失败。");return 0;}
 
-	rout("Hello World.");
+	UAVControlInterface *uav_ifs = new MAVLinkInterface(&parameters,&unity_state);//MAVLINK接口
+	ProbabilisticMap grid_map(&mtx,&parameters,&unity_state,uav_ifs); //栅格地图
+	ConnectRRT rrt(&rd,&mtx,&parameters,&unity_state,uav_ifs,&grid_map);  //RRT算法模块
+    LidarDataProcess points_processer(&rd,&mtx,&parameters,&unity_state,uav_ifs,&grid_map);//传感器模块
+	WayPointsUpdater wp_updater(&parameters,&unity_state,&mtx,uav_ifs);//坐标Local ENU  航点更新器
+	FlyPlan fly_plan(WP(parameters.target_pos_x,parameters.target_pos_y,parameters.target_pos_z)); // 初始化飞行目标位置
+	VelControlTracker2D vel_control_p(&parameters,&unity_state,&mtx,uav_ifs);//轨迹跟踪控制器 仅水平面
+	PositonLocalNED target_pos_flow;  //位置控制变量
+	system_init(&parameters,&unity_state,uav_ifs,&target_pos_flow,&fly_plan);  //参数初始化
 
-	UAVCONTROL_INTERFACE *uav_ifs = new MAVLINK_INTERFACE(&parameters,&unity_state);
-	PROBABILISTIC_MAP grid_map(&mtx,&parameters,&unity_state,uav_ifs);
-	CONNECT_RRT rrt(&rd,&mtx,&parameters,&unity_state,uav_ifs,&grid_map);
-    LIDAR_DATA_PROCESS points_processer(&rd,&mtx,&parameters,&unity_state,uav_ifs,&grid_map);
-	WP_UPDATER wp_updater(&parameters,&unity_state,&mtx,uav_ifs);//坐标Local ENU
-	FLY_PLAN_T sub_fly_wps(WP(parameters.target_pos_x,parameters.target_pos_y,parameters.target_pos_z));
-	PID_2D_control vel_control_p(&parameters,&unity_state,&mtx,uav_ifs);
-	positon_Local_NED_t target_pos_flow;
-	system_init(&parameters,&unity_state,uav_ifs,&target_pos_flow,&sub_fly_wps);
 
 
 
 	if(parameters.show_path_map)
 	{
-		cv::namedWindow("Path_map",WINDOW_NORMAL);
-		cv::resizeWindow("Path_map", 480, 480);
-		cv::moveWindow("Path_map",1000,1000);
+		path_map_vis = path_map_vis->init("path_map");
+		// cv::namedWindow("Path_map",WINDOW_NORMAL);
+		// cv::resizeWindow("Path_map", 480, 480);
+		// cv::moveWindow("Path_map",1000,1000);
 	}
 	if(parameters.show_rt_map){
-		cv::namedWindow("Origin_map",1);
-		cv::resizeWindow("Origin_map", 480, 480);
-		cv::moveWindow("Origin_map",1000,1000);	
+		origin_map_vis = origin_map_vis->init("origin_map");
+		// cv::namedWindow("Origin_map",1);
+		// cv::resizeWindow("Origin_map", 480, 480);
+		// cv::moveWindow("Origin_map",1000,1000);	
 	}
 	if(parameters.show_point_cloud){
-		cv::namedWindow("edgecloud",WINDOW_NORMAL);
-		cv::resizeWindow("edgecloud", 480, 480);
-		cv::moveWindow("edgecloud",1600,1000);		
+		edge_cloud_vis = edge_cloud_vis->init("edge_cloud");
+		// cv::namedWindow("edgecloud",WINDOW_NORMAL);
+		// cv::resizeWindow("edgecloud", 480, 480);
+		// cv::moveWindow("edgecloud",1600,1000);		
 	}
 
-	cv::startWindowThread();
+	// cv::startWindowThread();
 	ros::Rate *loop_rate_try = new ros::Rate(2);
-	std::thread _ros_thread(spinWrapper);
 
 	while(!unity_state.first_data_get) loop_rate_try->sleep();
 
 	ros::Rate loop_rate(30);
 
-	rout("Sleep .");
-
 	for(int i =0;i<50;i++){  loop_rate.sleep();	}
 
 	rout("System Start To Init.");
 
+	printf("参数加载完毕，请输入需要前往的目的地坐标：x,y");
+
 	std::thread _copter_control_thread(_copter_control_thread_Wrapper,&vel_control_p,std::ref(target_pos_flow));
 
-	std::thread _rrt_thread(_rrt_thread_Wrapper,&rrt,std::ref(grid_map),std::ref(sub_fly_wps));
+	std::thread _rrt_thread(_rrt_thread_Wrapper,&rrt,std::ref(grid_map),std::ref(fly_plan));
 
-	std::thread _waypointsMangaerThread(_waypointsMangaerThread_Wrapper,&wp_updater,std::ref(sub_fly_wps),std::ref(target_pos_flow));
+	std::thread _waypointsMangaerThread(_waypointsMangaerThread_Wrapper,&wp_updater,std::ref(fly_plan),std::ref(target_pos_flow));
 
-	_ros_thread.detach();
 
+/**
+ * @brief 线程Detach后独立运行 
+ * 
+ **/
 	_copter_control_thread.detach();
 
 	_waypointsMangaerThread.detach();
 
 	_rrt_thread.detach();
-
+/**
+ * @brief 空循环 
+ * 
+ **/
 	while(ros::ok()){
-
-		loop_rate.sleep();
-
+		std::stringstream ss;ss<<std::this_thread::get_id();
+		rout("rosSpin_thread started .Thead id: %s",ss.str().c_str());
+		ros::spin();
 	}
-	rout("Program ended.");
+	rout("程序结束。Program ended.");
 
 	return 0;
 }

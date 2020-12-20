@@ -15,52 +15,13 @@
 #include "base/baseType.h"
 #include "map/occupied_map.h"
 #include "vis_and_log/rviz_visualize.h"
-/*                                                                                                                      
-                                                                                                             G08             
-                                                                                               ,f     Ltf0L0L0@@G0   C08     
-                                                                                              0L1L;:18fG1i0L@@000G08G000LG   
-                                                                                             8f0f8,tLi0GGG8G00880L0L00000G   
-                                   8 1f                                                     0C: ;ttC0f0GGG0G8800iG0G00080G0  
-                                 0L1t,:18t               8:GC8C:C.              G;:.ff0    @C   tt10CCGCCCCC0C8C0G08L0000G:  
-                                0LtLtft1C8CL:         C:Ltii;;;iiGi,        C0C8G111Lt:L    08  0ttf00C8800CLG0L0008G8ttC0   
-                               ,tf1t10:0   G0        ;f1;:,,::::::;tC.      G@  0C:81t:;0    80  0ttt00i1Ci1L0G0000008       
-                               0Lftt;L10   @G      .:ti;,:::,,:::,:;:L     .fG  GtCtttt:;.    08  0GttCLL0GGG0G088880L       
-                               ;LLt1LfL    8f   .  L1;:,,,.....,::,:1f.    0C    0tLtttt:0   L,f18 0GGGi1808880GG080i0       
-                              tfLLLCtL,    iC0   ::;1;,,.       .,,,1t1    8C     Lt0LtttL  ;.,iCt:     .0CG   ,C00C         
-                000G ;1G       0LGLL0      CCGGGLii;i:..        .:,;it1iLftGC     .0Lf:8G0 0::C1GGG0G00L.00                  
-              ;8,tG0   00       GtG.           :f1iii:,.        ,:::;t1iG80:         8G0L 0GtGLf0C      t08                  
-            CG:: ,1G80 tG       0t0             .tt11;::,.. .. ,,,,;;tLf             fG, C0 fC                               
-          0:::C0tt008tt000:t8088L;CLi             .Lf,::,,,:,,::.:::tLG             00Gi80;0                                 
-         tttt1::::f0LG010tC  fGC00G0                .ft11,,,,,,,i1tf.               0LGC0.                                   
-        0LLfttt:8Gft111C:CCC;  .C0                   G1it.......fiiC                  0L0                                    
-        0LLLLC81f1:;0Cf8Gft                          ffffttffttffffG                                                         
-        :GLLLitf1L18,t1:ti..,.                        .L10     0tLC                                                          
-         .tLL00f;ift1f11i;:,..1                        181iii0 ;L                                                            
-           ;tGtf10tttttt1i,i:,:                      81fffi1fff10                                                            
-             .80L0Gttt1:ffC8Lt:                    0CLffff11fffLC08G                                                         
-              10G0GGGt0t80000t8                 0:C80GCLffLfffff0Cttt;L                                                      
-                .,@GGG811000;0                 :tt1tf8ffff8ffff8LLtttt0L       0CGLiL                                        
-                    ,0CtGGG0                  i001fLL10ffLCfL0t8000i00fG      0CGGGLi0                                       
-                                             80ff;,,,.,G0f1LfC;,,,,.CtL8      0CLGGLif                                       
-                                             CC0;;,,,,.:fL10Ci;:,,,,;800      800088Cf                                       
-                                            01001;;;;;;ffGf0fti;;;;;1fGfiLf    0808tL ;1                                     
-                                            0ftGCG111L8Gf;;18G80GL0G8fit;C    08t10fL0 8C                                    
-                                         0GCf8ffG1800CG0G8fGGG:C;1tL0Cft     L08tt0it0 8:                                    
-                                          ifCC080C0t0,t,1 t ;t.Lf0800GfC0L0;11088080010L                                     
-                                          0LGGL88fGfGf80iGCG:i0fCf0L0fLLf8Cifff080tt010                                      
-                                       .LGtG0000fCL00CC8CCLLfGf0CiL;008CL880f   00000                                        
-                                        :80LfC.;;;;0088C0GC8G80CLCC0G0L         0CLL@                                        
-                                      1CC8CCCL11111tGG01ftCi8LtGfff;   t                                                     
-                                    .8CCC8t1iCttLLf8fLfttff10fCftL00                                                         
-                                   C,8801:81it::.808GfGG00000C008CLC0                                                        
-                                 :;1t0C1LttC0;,:G88CCCCCCCCCCCCC8808L,                                                       
-                                  8L00 :000CL0,0C0L0ff0LfffLLffLG0G000                                                       
-*/
 
-class RRT_Base:public CoordinateTransform{
+using namespace cv;
+
+class RRTBase:public CoordinateTransform{
 public:
 
-    RRT_Base(std::random_device *_rd_,std::mutex *_mtx_,Parameters *_p_,UNIVERSAL_STATE *_unity_,UAVCONTROL_INTERFACE *_mavlink_p_,PROBABILISTIC_MAP *_grid_map_):
+    RRTBase(std::random_device *_rd_,std::mutex *_mtx_,Parameters *_p_,UniversalState *_unity_,UAVControlInterface *_mavlink_p_,ProbabilisticMap *_grid_map_):
                     rd(_rd_),mtx(_mtx_),_p(_p_),_unity(_unity_),_mavlink(_mavlink_p_),_grid_map(_grid_map_) {}
 
     typedef class TREE_NODE_T:public __WAYPOINT_T__{
@@ -212,24 +173,24 @@ public:
 protected:
     bool single_point_check(WP newPoint ,OBSTACLE_GRID_MAP  &obstaclesMap);
     uint32_t max_iterations;
-    PROBABILISTIC_MAP *_grid_map;
+    ProbabilisticMap *_grid_map;
     std::random_device *rd;
     Parameters *_p;
-    UNIVERSAL_STATE *_unity;
-    UAVCONTROL_INTERFACE *_mavlink;
+    UniversalState *_unity;
+    UAVControlInterface *_mavlink;
     std::mutex *mtx;
     bool find_route=false;
 };
 
 
-class CONNECT_RRT:public RRT_Base{
+class ConnectRRT:public RRTBase{
 
-    enum class GROW_STATUS{
+    enum class GrowStatus{
         direct,
         rrt
     }grow_status;
 
-    bool Check_If_Target_OK(OBSTACLE_GRID_MAP &obstaclesMap,FLY_PLAN_T &current_route);
+    bool Check_If_Target_OK(OBSTACLE_GRID_MAP &obstaclesMap,FlyPlan &current_route);
     std::shared_ptr<ros::ServiceClient> minimumsnap_client;
     std::shared_ptr<minimumsnap_route::service> minimumsnap_srv;
     std::shared_ptr<visualizer_marker> route_vis;
@@ -245,13 +206,13 @@ class CONNECT_RRT:public RRT_Base{
     WPS combine_two_rrt_path(Tree_t RRTtree1,Tree_t RRTtree2);
 
 public :
-    CONNECT_RRT(std::random_device *_rd_,std::mutex *_mtx_,Parameters *_p_,UNIVERSAL_STATE *_unity_,UAVCONTROL_INTERFACE *_mavlink_p_,PROBABILISTIC_MAP *_grid_map_);
+    ConnectRRT(std::random_device *_rd_,std::mutex *_mtx_,Parameters *_p_,UniversalState *_unity_,UAVControlInterface *_mavlink_p_,ProbabilisticMap *_grid_map_);
 
     void Create_Thread(
-								 PROBABILISTIC_MAP &GridMap
-								,FLY_PLAN_T &current_route);
+								 ProbabilisticMap &GridMap
+								,FlyPlan &current_route);
     RRT_STATE_C minimumsnap_calc(
-                                copter_local_pos_att_t attpos
+                                UAVLocalPositionAndAttitude attpos
                                 ,WPS &path_input
                                 ,WPS &path_output
                                 );
@@ -268,15 +229,15 @@ public :
 
     std::vector<int> find_all_son_index(Tree_t RRTtree,int start_index,std::vector<int>list,bool *finded_mask);
 
-    RRT_STATE_C plan(	         copter_local_pos_att_t att_pos_copy  
+    RRT_STATE_C plan(	         UAVLocalPositionAndAttitude att_pos_copy  
                                 ,OBSTACLE_GRID_MAP &obstaclesMap
-                                ,FLY_PLAN_T &current_route
+                                ,FlyPlan &current_route
                                 ,cv::Mat &Path
                                 ,std::vector<Tree_t> &get_trees
             );
-    RRT_STATE_C plan_online(copter_local_pos_att_t att_pos_copy  
+    RRT_STATE_C plan_online(UAVLocalPositionAndAttitude att_pos_copy  
                             ,OBSTACLE_GRID_MAP &obstaclesMap
-                            ,FLY_PLAN_T &current_route
+                            ,FlyPlan &current_route
                             ,cv::Mat &Path
                             ,std::vector<Tree_t> &get_trees
                             ,std::vector<WPS> &save_route 

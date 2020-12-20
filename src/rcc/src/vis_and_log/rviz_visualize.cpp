@@ -1,5 +1,24 @@
 #include "vis_and_log/rviz_visualize.h"
 
+
+
+
+__VISUALIZE_IMAGE__::__VISUALIZE_IMAGE__(std::string name){
+    ros::NodeHandle nh;
+    nh.advertise<sensor_msgs::Image>(name,1);
+    pub =  std::make_shared<ros::Publisher>();
+}
+std::shared_ptr<__VISUALIZE_IMAGE__> __VISUALIZE_IMAGE__::init(std::string name){
+    return std::make_shared<__VISUALIZE_IMAGE__>(__VISUALIZE_IMAGE__(name));
+}
+void __VISUALIZE_IMAGE__::push_to_rviz(cv::Mat &In){
+    sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", In).toImageMsg();
+    pub->publish(*msg);
+}
+
+
+
+
 __VISUALIZE_MARKER__::__VISUALIZE_MARKER__(std::string name,std::string type,std::string marker_type,std::string refresh_method){
     ros::NodeHandle nh;
     if(type=="marker"){

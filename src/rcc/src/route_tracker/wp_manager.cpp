@@ -3,8 +3,8 @@
 
 
 
-void WP_UPDATER::Create_Thread(FLY_PLAN_T &fly_plan 
-						,positon_Local_NED_t &input_pos_flow){
+void WayPointsUpdater::Create_Thread(FlyPlan &fly_plan 
+						,PositonLocalNED &input_pos_flow){
     bool new_fly_plan_avaliable =false;
         
     ros::Rate loop_rate(50);

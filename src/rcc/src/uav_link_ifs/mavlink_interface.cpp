@@ -3,21 +3,21 @@
 #include <nav_msgs/Odometry.h>
 #include "tf/transform_datatypes.h"
 
-MAVLINK_INTERFACE::MAVLINK_INTERFACE(Parameters *_p_,UNIVERSAL_STATE *unity_state){
+MAVLinkInterface::MAVLinkInterface(Parameters *_p_,UniversalState *unity_state){
     _enable = true;
     _p=_p_;
     _unity=unity_state;
     ros::NodeHandle nh;
     mavlink_pub = std::make_shared<ros::Publisher>(nh.advertise<mavros_msgs::Mavlink>("mavlink/to", 1));
     vel_pub = std::make_shared<ros::Publisher>(nh.advertise<geometry_msgs::Twist>("/mavros/setpoint_velocity/cmd_vel_unstamped", 1, true));
-    pos_sub  =std::make_shared<ros::Subscriber>(nh.subscribe<nav_msgs::Odometry>("/mavros/global_position/local",1,&MAVLINK_INTERFACE::copter_info_handler,this));
-    state_sub = std::make_shared<ros::Subscriber>(nh.subscribe<mavros_msgs::State>("mavros/state",1,&MAVLINK_INTERFACE::state_cb,this));
+    pos_sub  =std::make_shared<ros::Subscriber>(nh.subscribe<nav_msgs::Odometry>("/mavros/global_position/local",1,&MAVLinkInterface::copter_info_handler,this));
+    state_sub = std::make_shared<ros::Subscriber>(nh.subscribe<mavros_msgs::State>("mavros/state",1,&MAVLinkInterface::state_cb,this));
     commandlong_srv = std::make_shared<ros::ServiceClient> (nh.serviceClient<mavros_msgs::CommandLong>("mavros/cmd/command"));
     arming_client_srv = std::make_shared<ros::ServiceClient>(nh.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming"));
     set_mode_client_srv = std::make_shared<ros::ServiceClient>(nh.serviceClient<mavros_msgs::SetMode>("mavros/set_mode"));
 }
 
-bool MAVLINK_INTERFACE::subscribe_sensor_flow(){
+bool MAVLinkInterface::subscribe_sensor_flow(){
 	// if(Mavlink_Commmand("dist_sensor"));
 	//IMU数据订阅
 	// if(Mavlink_Commmand("imu"));
@@ -26,11 +26,11 @@ bool MAVLINK_INTERFACE::subscribe_sensor_flow(){
 	return true;
 };
 
-bool MAVLINK_INTERFACE::takeoff(){
+bool MAVLinkInterface::takeoff(){
     return Mavlink_Commmand("take_off");
 }
 
-bool MAVLINK_INTERFACE::set_arm(bool arm){
+bool MAVLinkInterface::set_arm(bool arm){
     mavros_msgs::CommandBool arm_cmd;
     arm_cmd.request.value = arm;
     ros::Rate loop(3);
@@ -43,7 +43,7 @@ bool MAVLINK_INTERFACE::set_arm(bool arm){
         loop.sleep();
     }
 }
-bool MAVLINK_INTERFACE::set_mode(std::string mode){
+bool MAVLinkInterface::set_mode(std::string mode){
     mavros_msgs::SetMode mode_cmd;
     // mode_cmd.request.base_mode = 216 ;
     mode_cmd.request.custom_mode = mode;
@@ -59,7 +59,7 @@ bool MAVLINK_INTERFACE::set_mode(std::string mode){
 
 
 
-void MAVLINK_INTERFACE::setPositionLocalNED(velocity_Local_NED_t vel_cmd){
+void MAVLinkInterface::setPositionLocalNED(VelocityLocalNED vel_cmd){
 
 	if(!_enable||_link_down) return;
 
@@ -77,7 +77,7 @@ void MAVLINK_INTERFACE::setPositionLocalNED(velocity_Local_NED_t vel_cmd){
 
 }
 
-bool MAVLINK_INTERFACE::Mavlink_Commmand(std::string type){
+bool MAVLinkInterface::Mavlink_Commmand(std::string type){
 	mavros_msgs::CommandLong stream_rate_cmd;
     stream_rate_cmd.response.success=false;
 	if(type=="take_off"){
@@ -141,7 +141,7 @@ bool MAVLINK_INTERFACE::Mavlink_Commmand(std::string type){
         return true;
 	}
 }
-void MAVLINK_INTERFACE::copter_info_handler(const nav_msgs::Odometry::ConstPtr &msg){
+void MAVLinkInterface::copter_info_handler(const nav_msgs::Odometry::ConstPtr &msg){
 
 	_unity->first_data_get=true;
 	copter_local_pos_att.pos_x=msg->pose.pose.position.x;
@@ -165,7 +165,7 @@ void MAVLINK_INTERFACE::copter_info_handler(const nav_msgs::Odometry::ConstPtr &
 
 }
 
-std::string MAVLINK_INTERFACE::get_mode(){
+std::string MAVLinkInterface::get_mode(){
 	return current_state.mode;
 }
 

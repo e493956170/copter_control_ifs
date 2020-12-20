@@ -46,21 +46,23 @@ public :
     int map_expand_size=0;
 
 private:
-//a higher value will reduce the count of expendting map;
-//if index of col or row is out of bound,auto call to resize.
-//@param:x->index of col
-//@param:y->index of row
+/**
+    @brief a higher value will reduce the count of expendting map;
+            if index of col or row is out of bound,auto call to resize.
+    @param:x->index of col
+    @param:y->index of row
+**/
     void index_check(int &x,int &y);
 
 }OBSTACLE_GRID_MAP;
 
 
 
-class PROBABILISTIC_MAP:public CoordinateTransform{
+class ProbabilisticMap:public CoordinateTransform{
     Parameters *_p;
     std::mutex *_mtx;
-    UNIVERSAL_STATE *_unity;
-    UAVCONTROL_INTERFACE *_mavlink_p;
+    UniversalState *_unity;
+    std::shared_ptr<UAVControlInterface> _mavlink_p;
     std::shared_ptr<ros::Publisher> pub_octomap;
     double map_griz_size = 0.2;
     ros::Time time;
@@ -73,7 +75,7 @@ public:
     Eigen::MatrixXi ShadowMap;
     double update_miss=0;
     double update_hit=0;
-    PROBABILISTIC_MAP(std::mutex *_mtx_,Parameters *_p_,UNIVERSAL_STATE *_unity_,UAVCONTROL_INTERFACE *_mavlink_p_);
+    ProbabilisticMap(std::mutex *_mtx_,Parameters *_p_,UniversalState *_unity_,UAVControlInterface *_mavlink_p_);
     enum class GRID_STATUS{
         HIT,
         MISS,        
@@ -85,7 +87,7 @@ public:
     bool isSpeckleNode(octomap::OcTree::iterator Node);
     void update_grid(WP _wp_ ,GRID_STATUS hit_or_miss);
     double check_grid(WP _wp_);
-    void update_from_cloud(const PTC &cloud,const PTC &edge,copter_local_pos_att_t * attpos);
+    void update_from_cloud(const PTC &cloud,const PTC &edge,UAVLocalPositionAndAttitude * attpos);
     void push_to_rviz();
     cv::Mat get_whole_map();
     void set_center(int x,int y);

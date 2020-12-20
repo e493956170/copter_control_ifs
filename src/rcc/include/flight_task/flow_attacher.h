@@ -3,8 +3,8 @@
 #include "uav_link_ifs/uavcontrol_interface.h"
 
 extern   Parameters *_p;
-extern   UNIVERSAL_STATE *_unity;
-extern   UAVCONTROL_INTERFACE *_uav_ifs;
-extern   positon_Local_NED_t *_target_pos_flow;
-extern   FLY_PLAN_T *_sub_fly_wps;
+extern   UniversalState *_unity;
+extern   UAVControlInterface *_uav_ifs;
+extern   PositonLocalNED *_target_pos_flow;
+extern   FlyPlan *_sub_fly_wps;
 

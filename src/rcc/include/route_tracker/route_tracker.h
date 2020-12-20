@@ -13,7 +13,7 @@
 	无人机路径控制类
 
 */
-class Vel_Control_c:public __BASE_METHOD__{
+class RouteTracker:public __BASE_METHOD__{
 public:
 
 	struct {
@@ -23,20 +23,20 @@ public:
 	ros::Time update_time;
 	double target_yaw=0;
 
-	Vel_Control_c(Parameters *_p_,UNIVERSAL_STATE *_unity_,std::mutex *_mtx_,UAVCONTROL_INTERFACE *_mavlink_):_p(_p_),_unity(_unity_),mtx(_mtx_),_mavlink(_mavlink_){}
+	RouteTracker(Parameters *_p_,UniversalState *_unity_,std::mutex *_mtx_,UAVControlInterface *_mavlink_):_p(_p_),_unity(_unity_),mtx(_mtx_),_mavlink(_mavlink_){}
 
     Parameters *_p;
-    UNIVERSAL_STATE *_unity;
+    UniversalState *_unity;
     std::mutex *mtx;
-	UAVCONTROL_INTERFACE *_mavlink;
+	UAVControlInterface *_mavlink;
 };
 
-class PID_2D_control:public Vel_Control_c{
+class VelControlTracker2D:public RouteTracker{
 public:
 	double latest_x=0,latest_y=0,latest_z=0,latest_yaw=0;
 	bool update_latest_local_pos();
 
-    PID_2D_control(Parameters *_p_,UNIVERSAL_STATE *_unity_,std::mutex *_mtx_,UAVCONTROL_INTERFACE *_mavlink_):Vel_Control_c(_p_,_unity_,_mtx_,_mavlink_){
+    VelControlTracker2D(Parameters *_p_,UniversalState *_unity_,std::mutex *_mtx_,UAVControlInterface *_mavlink_):RouteTracker(_p_,_unity_,_mtx_,_mavlink_){
 		pid_vx.Kp=_p_->V_Kp;
 		pid_vx.Ki=_p_->V_Ki;
 		pid_vx.Kd=_p_->V_Kd;
@@ -73,9 +73,9 @@ public:
 		pid_z.max_i_sum=_p_->Vz_I_Max;
 	}
 
-	~PID_2D_control(){}
+	~VelControlTracker2D(){}
 
-	void Create_Thread(positon_Local_NED_t &input_pos_flow);
+	void Create_Thread(PositonLocalNED &input_pos_flow);
 
 	void get_altitude_speed(double target_z ,double &target_vz){
 		pid_z.error=target_z-latest_z;
@@ -110,9 +110,9 @@ public:
 		}
 	}pid_yaw_rate,pid_vx,pid_vy,pid_z,pid_ax,pid_ay;
 
-	bool get_2d_control_speed(positon_Local_NED_t &input_pos_flow,velocity_Local_NED_t &output_flow);
-	bool get_2d_control_speed(positon_Local_NED_t &input_pos_flow,vel_acc_Local_NED_t &output_flow);
-	bool get_2d_control_speed_Init(positon_Local_NED_t &input_pos_flow,velocity_Local_NED_t &output_flow);
+	bool get_2d_control_speed(PositonLocalNED &input_pos_flow,VelocityLocalNED &output_flow);
+	bool get_2d_control_speed(PositonLocalNED &input_pos_flow,VelAccLocalNED &output_flow);
+	bool get_2d_control_speed_Init(PositonLocalNED &input_pos_flow,VelocityLocalNED &output_flow);
 
 	
 private:

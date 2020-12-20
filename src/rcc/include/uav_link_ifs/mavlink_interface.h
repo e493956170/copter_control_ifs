@@ -13,10 +13,10 @@
 #include <mavros_msgs/CommandLong.h>
 #include <mavros_msgs/State.h>
 
-class MAVLINK_INTERFACE:public UAVCONTROL_INTERFACE{
+class MAVLinkInterface:public UAVControlInterface{
 public:
-	MAVLINK_INTERFACE(Parameters *_p_,UNIVERSAL_STATE *unity_state);
-    void setPositionLocalNED(velocity_Local_NED_t vel_cmd);
+	MAVLinkInterface(Parameters *_p_,UniversalState *unity_state);
+    void setPositionLocalNED(VelocityLocalNED vel_cmd);
 	void state_cb(const mavros_msgs::State::ConstPtr& msg){auto _link_down=msg->connected;current_state = *msg;}	
 	void copter_info_handler(const nav_msgs::Odometry::ConstPtr &msg);
 	bool subscribe_sensor_flow();

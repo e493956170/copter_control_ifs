@@ -5,7 +5,7 @@
 using namespace cv;
 
 //声明advertise，octomap rviz plug in 默认接受topic为octomap_full的message
-void PROBABILISTIC_MAP::push_to_rviz()
+void ProbabilisticMap::push_to_rviz()
 {
     //声明message
     static int cnt=0;
@@ -21,7 +21,7 @@ void PROBABILISTIC_MAP::push_to_rviz()
         ROS_ERROR("Error serializing OctoMap");
 }
 
-PROBABILISTIC_MAP::PROBABILISTIC_MAP(std::mutex *_mtx_,Parameters *_p_,UNIVERSAL_STATE *_unity_,UAVCONTROL_INTERFACE *_mavlink_p_)
+ProbabilisticMap::ProbabilisticMap(std::mutex *_mtx_,Parameters *_p_,UniversalState *_unity_,UAVControlInterface *_mavlink_p_)
                     :_mtx(_mtx_),_p(_p_),_unity(_unity_),_mavlink_p(_mavlink_p_){
     int x = _p->map_size_x;
     int y = _p->map_size_y;
@@ -47,18 +47,18 @@ PROBABILISTIC_MAP::PROBABILISTIC_MAP(std::mutex *_mtx_,Parameters *_p_,UNIVERSAL
     lidar_data_vis->set_attribue(0,1,0,0.7);
 }
 
-double PROBABILISTIC_MAP::check_grid(int row,int col ,int z){
+double ProbabilisticMap::check_grid(int row,int col ,int z){
     
     double p = Gridmap(row,col);  //row index   col index
     // if(p>0) rout("%f",p);
     return p;
 }
-void PROBABILISTIC_MAP::update_grid(WP _wp_ ,GRID_STATUS hit_or_miss){
+void ProbabilisticMap::update_grid(WP _wp_ ,GRID_STATUS hit_or_miss){
     bool _hit_or_miss =hit_or_miss==GRID_STATUS::HIT?true:false;
     tree->updateNode(_wp_.x,_wp_.y,_wp_.z,_hit_or_miss);
 }
 
-double PROBABILISTIC_MAP::check_grid(WP _wp_){
+double ProbabilisticMap::check_grid(WP _wp_){
     octomap::OcTreeNode *point;
     if((point=tree->search(_wp_.x,_wp_.y,_wp_.z))!=nullptr);
     {
@@ -66,13 +66,14 @@ double PROBABILISTIC_MAP::check_grid(WP _wp_){
     }
     return .0;
 }
-
-void PROBABILISTIC_MAP::update_from_cloud(const PTC &cloud,const PTC &edge,copter_local_pos_att_t * attpos){
+void ProbabilisticMap::update_from_cloud(const PTC &cloud,const PTC &edge,UAVLocalPositionAndAttitude * attpos){
 //     ShadowMap.setZero();
 //     //对整个点云进行处理 转化为世界localned坐标
     // WPS pointCloudInworld = ft_pts(-attpos->pos_x,-attpos->pos_y,angle_add(attpos->yaw,0),cloud);
     // WPS EdgeCloudInworld = ft_pts(-attpos->pos_x,-attpos->pos_y,angle_add(attpos->yaw,0),edge);
     OBSTACLE_GRID_MAP obstaclesMapshow;
+    extern std::shared_ptr<visualize_image> edge_cloud_vis;
+
     Mat img;
     if(_p->show_point_cloud)
     {
@@ -86,7 +87,8 @@ void PROBABILISTIC_MAP::update_from_cloud(const PTC &cloud,const PTC &edge,copte
         for(int i = 0;i<cloud.size();i++){
             circleimg(img,cloud[i],obstaclesMapshow,Scalar(0,255,0),2);
         }
-        imshow("edgecloud",img);
+        // cv::imshow("edgecloud",img);
+        edge_cloud_vis->push_to_rviz(img);
 
     }
 
@@ -144,7 +146,7 @@ void PROBABILISTIC_MAP::update_from_cloud(const PTC &cloud,const PTC &edge,copte
     push_to_rviz();
 }
 
-bool PROBABILISTIC_MAP::isSpeckleNode(octomap::OcTree::iterator Node){
+bool ProbabilisticMap::isSpeckleNode(octomap::OcTree::iterator Node){
 
     auto nKey = Node.getKey();
 
@@ -166,7 +168,7 @@ bool PROBABILISTIC_MAP::isSpeckleNode(octomap::OcTree::iterator Node){
     return neighborFound;
 }
 
-cv::Mat PROBABILISTIC_MAP::get_whole_map(){
+cv::Mat ProbabilisticMap::get_whole_map(){
     cv::Mat img(Gridmap.map.rows(),Gridmap.map.cols(),CV_8UC1);
     for(int i = 0;i<Gridmap.map.rows();i++)
         for(int j = 0;j<Gridmap.map.cols();j++){
@@ -175,7 +177,7 @@ cv::Mat PROBABILISTIC_MAP::get_whole_map(){
     return img;
 }
 
-void PROBABILISTIC_MAP::set_center(int x,int y ){
+void ProbabilisticMap::set_center(int x,int y ){
     Gridmap.center_x=x;
     Gridmap.center_y=y;
 }
